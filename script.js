@@ -1,6 +1,5 @@
 let expression = "";
 
-// ---------------- CALCULATRICE ----------------
 function ajouterChiffre(chiffre) {
   expression += chiffre;
   document.getElementById("affichage").value = expression;
@@ -28,58 +27,57 @@ function effacer() {
   document.getElementById("affichage").value = "";
 }
 
-// ---------------- AVIS ----------------
-function envoyerAvis() {
+// AVIS AVEC FIREBASE
+async function envoyerAvis() {
   const texte = document.getElementById("avis-text").value;
-  const note = document.getElementById("etoiles").value;
-
+  const note = parseInt(document.getElementById("etoiles").value);
   if (!texte || texte.length > 250) {
-    return alert("Votre avis doit contenir 1 à 250 caractères.");
+    alert("Votre avis est invalide");
+    return;
   }
 
-  const avis = {
+  const { collection, addDoc } = window.firestoreFns;
+  await addDoc(collection(window.db, "avis"), {
     texte,
     note,
     likes: 0,
-    id: Date.now()
-  };
+    date: new Date()
+  });
 
-  const anciens = JSON.parse(localStorage.getItem("avis") || "[]");
-  anciens.push(avis);
-  localStorage.setItem("avis", JSON.stringify(anciens));
   document.getElementById("avis-text").value = "";
-  afficherAvis();
 }
 
 function afficherAvis() {
+  const { collection, onSnapshot } = window.firestoreFns;
+  const avisRef = collection(window.db, "avis");
   const container = document.getElementById("liste-avis");
+
   if (!container) return;
 
-  const avisList = JSON.parse(localStorage.getItem("avis") || "[]");
-  container.innerHTML = "<h2>📣 Avis des utilisateurs</h2>";
-
-  avisList.reverse().forEach(avis => {
-    const div = document.createElement("div");
-    div.className = "avis";
-    div.innerHTML = `
-      <strong>${"⭐".repeat(avis.note)}</strong><br>
-      <p>${avis.texte}</p>
-      <button class="like-btn" onclick="likerAvis(${avis.id})">❤️ ${avis.likes}</button>
-    `;
-    container.appendChild(div);
+  onSnapshot(avisRef, (snapshot) => {
+    container.innerHTML = "<h2>📣 Avis des utilisateurs</h2>";
+    snapshot.docs
+      .sort((a, b) => b.data().date?.toMillis() - a.data().date?.toMillis())
+      .forEach((docSnap) => {
+        const avis = docSnap.data();
+        const div = document.createElement("div");
+        div.className = "avis";
+        div.innerHTML = `
+          <strong>${"⭐".repeat(avis.note)}</strong><br>
+          <p>${avis.texte}</p>
+          <button class="like-btn" onclick="likerAvis('${docSnap.id}')">❤️ ${avis.likes || 0}</button>
+        `;
+        container.appendChild(div);
+      });
   });
 }
 
-function likerAvis(id) {
-  let avisList = JSON.parse(localStorage.getItem("avis") || "[]");
-  avisList = avisList.map(avis => {
-    if (avis.id === id) avis.likes++;
-    return avis;
+async function likerAvis(id) {
+  const { doc, updateDoc, increment } = window.firestoreFns;
+  const avisRef = doc(window.db, "avis", id);
+  await updateDoc(avisRef, {
+    likes: increment(1)
   });
-  localStorage.setItem("avis", JSON.stringify(avisList));
-  afficherAvis();
 }
 
-// Chargement automatique des avis si présent
 window.onload = afficherAvis;
-
