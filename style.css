@@ -1,6 +1,7 @@
 body {
   font-family: Arial, sans-serif;
-  background: #1a1a1a;
+  background: url("Background.jpg") no-repeat center center fixed;
+  background-size: cover;
   color: white;
   text-align: center;
   padding: 20px;
@@ -12,7 +13,7 @@ h1 {
 }
 
 .calculatrice {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.6);
   padding: 20px;
   border-radius: 10px;
   display: inline-block;
@@ -46,10 +47,6 @@ button {
 
 button.special {
   background-color: #e67e22;
-}
-
-button:hover {
-  background-color: #2980b9;
 }
 
 textarea {
@@ -91,4 +88,12 @@ select {
   color: gold;
   font-size: 20px;
   cursor: pointer;
+}
+
+#login-container {
+  margin: 20px auto;
+}
+
+#user-info {
+  margin: 10px;
 }
