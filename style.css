@@ -92,3 +92,8 @@ select {
   font-size: 20px;
   cursor: pointer;
 }
+
+#auth-section {
+  margin: 20px 0;
+}
+
