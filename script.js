@@ -7,14 +7,10 @@ function ajouterChiffre(chiffre) {
 }
 
 function ajouterOperateur(op) {
-  if (op === "Math.sqrt(") {
-    expression += "Math.sqrt(";
-  } else {
-    if (expression !== "" && !/[+\-*/(]$/.test(expression)) {
-      expression += op;
-    }
+  if (expression !== "" && !/[+\-*/(]$/.test(expression)) {
+    expression += op;
+    afficher();
   }
-  afficher();
 }
 
 function afficher() {
@@ -23,13 +19,6 @@ function afficher() {
 
 function calculer() {
   try {
-    // Pour gérer racine avec fermeture automatique
-    if (expression.includes("Math.sqrt(")) {
-      let ouvert = (expression.match(/Math\.sqrt\(/g) || []).length;
-      let ferme = (expression.match(/\)/g) || []).length;
-      expression += ")".repeat(ouvert - ferme);
-    }
-
     let resultat = eval(expression);
     expression = resultat.toString();
     afficher();
@@ -65,9 +54,10 @@ window.onload = () => {
     callback: handleCredentialResponse
   });
 
-  document.getElementById("google-login-btn").addEventListener("click", () => {
-    google.accounts.id.prompt();
-  });
+  google.accounts.id.renderButton(
+    document.getElementById("google-login-btn"),
+    { theme: "outline", size: "large" }
+  );
 
   document.getElementById("logout-btn").addEventListener("click", () => {
     location.reload(); // recharge la page pour tout réinitialiser
