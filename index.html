@@ -6,30 +6,9 @@
   <link rel="stylesheet" href="style.css" />
 
   <!-- Firebase SDKs -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, increment, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCWSSYXHJNXcbFaJn6AapsEARKCTjhzqXs",
-      authDomain: "monsitecalculatrice.firebaseapp.com",
-      projectId: "monsitecalculatrice",
-      storageBucket: "monsitecalculatrice.appspot.com",
-      messagingSenderId: "287241978051",
-      appId: "1:287241978051:web:d6fa38c47a6def42c6e276",
-      measurementId: "G-3RY758BE8D"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-
-    window.db = db;
-    window.auth = auth;
-    window.firestoreFns = { collection, addDoc, onSnapshot, doc, updateDoc, increment, getDoc, setDoc };
-    window.authFns = { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut };
-  </script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
 </head>
 <body>
   <h1>Ma Super Calculatrice</h1>
@@ -79,6 +58,6 @@
 
   <div id="liste-avis"></div>
 
-  <script src="script.js" type="module"></script>
+  <script src="script.js"></script>
 </body>
 </html>
