@@ -1,16 +1,18 @@
 body {
   font-family: Arial, sans-serif;
-  background: url("Background.jpg") no-repeat center center fixed;
-  background-size: cover;
+  background: #1a1a1a;
   color: white;
   text-align: center;
   padding: 20px;
 }
 
-h1 { color: #f39c12; }
+h1 {
+  color: #f39c12;
+  margin-bottom: 30px;
+}
 
 .calculatrice {
-  background-color: rgba(0,0,0,0.6);
+  background-color: rgba(255, 255, 255, 0.1);
   padding: 20px;
   border-radius: 10px;
   display: inline-block;
@@ -23,6 +25,7 @@ h1 { color: #f39c12; }
   margin-bottom: 15px;
   text-align: right;
   border-radius: 5px;
+  border: none;
 }
 
 .clavier {
@@ -34,18 +37,28 @@ h1 { color: #f39c12; }
 button {
   padding: 15px;
   font-size: 18px;
+  border: none;
   border-radius: 5px;
+  cursor: pointer;
   background-color: #3498db;
   color: white;
-  border: none;
+}
+
+button.special {
+  background-color: #e67e22;
+}
+
+button:hover {
+  background-color: #2980b9;
 }
 
 textarea {
   width: 300px;
   height: 100px;
   margin-top: 20px;
-  padding: 10px;
   border-radius: 5px;
+  padding: 10px;
+  font-size: 16px;
 }
 
 select {
@@ -53,20 +66,26 @@ select {
   margin-top: 10px;
 }
 
+#liste-avis {
+  margin-top: 40px;
+  text-align: left;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .avis {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(255, 255, 255, 0.08);
   padding: 15px;
   border-radius: 8px;
-  margin: 15px auto;
-  max-width: 600px;
-  text-align: left;
+  margin-bottom: 15px;
   position: relative;
 }
 
 .like-btn {
   position: absolute;
-  right: 10px;
   top: 10px;
+  right: 15px;
   border: none;
   background: none;
   color: gold;
