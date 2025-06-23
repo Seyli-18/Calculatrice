@@ -6,26 +6,10 @@
   <link rel="stylesheet" href="style.css" />
 
   <!-- Firebase SDKs -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCWSSYXHJNXcbFaJn6AapsEARKCTjhzqXs",
-      authDomain: "monsitecalculatrice.firebaseapp.com",
-      projectId: "monsitecalculatrice",
-      storageBucket: "monsitecalculatrice.firebasestorage.app",
-      messagingSenderId: "287241978051",
-      appId: "1:287241978051:web:d6fa38c47a6def42c6e276",
-      measurementId: "G-3RY758BE8D"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    window.db = db;
-    window.firestoreFns = { collection, addDoc, onSnapshot, doc, updateDoc, increment };
-  </script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
   <h1>Ma Super Calculatrice</h1>
@@ -52,9 +36,24 @@
     </div>
   </div>
 
+  <!-- Connexion Google -->
+  <div id="login-container">
+    <div id="g_id_onload"
+         data-client_id="287241978051-n2vslkdn3f1e5d7iv1b4bhrc3fc9trf1.apps.googleusercontent.com"
+         data-callback="onSignIn">
+    </div>
+    <div class="g_id_signin" data-type="standard"></div>
+  </div>
+
+  <div id="user-info" style="display:none;">
+    <p id="user-name"></p>
+    <button onclick="logout()">Se déconnecter</button>
+  </div>
+
+  <!-- Avis -->
   <h2>Laissez un avis</h2>
   <div>
-    <textarea id="avis-text" maxlength="250" placeholder="Votre avis (max 250 caractères)..."></textarea><br />
+    <textarea id="avis-text" maxlength="250" placeholder="Votre avis..."></textarea><br />
     <label>Note :
       <select id="etoiles">
         <option value="1">⭐</option>
@@ -68,6 +67,10 @@
   </div>
 
   <div id="liste-avis"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
 
   <script src="script.js"></script>
 </body>
