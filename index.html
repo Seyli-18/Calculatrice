@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <meta charset="UTF-8" />
   <title>Calculatrice - Addition</title>
   <link rel="stylesheet" href="style.css" />
@@ -22,8 +21,7 @@
       <button onclick="ajouterChiffre('8')">8</button>
       <button onclick="ajouterChiffre('9')">9</button>
       <button onclick="ajouterChiffre('0')">0</button>
-      <button id="google-login-btn">Se connecter avec Google</button>
-     
+
       <!-- Opérations -->
       <button class="special" onclick="ajouterOperateur('+')">+</button>
       <button class="special" onclick="calculer()">=</button>
@@ -31,6 +29,13 @@
     </div>
   </div>
 
+  <!-- Bouton Google -->
+  <button id="google-login-btn" type="button" style="position: fixed; bottom: 20px; right: 20px; padding: 10px 15px; background:#4285F4; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+    Se connecter avec Google
+  </button>
+
+  <!-- Librairie Google Sign-In -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="script.js"></script>
 </body>
 </html>
