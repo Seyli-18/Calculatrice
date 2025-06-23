@@ -1,8 +1,8 @@
 body {
-  font-family: 'Arial', sans-serif;
+  font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background-image: url('https://images.unsplash.com/photo-1549887534-164efe6a5d70?auto=format&fit=crop&w=1350&q=80');
+  background-image: url('https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1350&q=80');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -30,11 +30,11 @@ h1 {
 }
 
 .calculatrice {
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.95);
   border-radius: 10px;
   padding: 20px;
-  box-shadow: 0 0 10px #333;
-  margin-top: 15px;
+  box-shadow: 0 0 10px #00000055;
+  margin-top: 20px;
   width: 280px;
 }
 
@@ -45,8 +45,9 @@ h1 {
   text-align: right;
   margin-bottom: 15px;
   padding: 10px;
-  box-sizing: border-box;
   border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
 }
 
 .clavier {
