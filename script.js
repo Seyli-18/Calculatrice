@@ -1,44 +1,21 @@
+// Initialisation Firebase
 firebase.initializeApp({
   apiKey: "AIzaSyCWSSYXHJNXcbFaJn6AapsEARKCTjhzqXs",
   authDomain: "monsitecalculatrice.firebaseapp.com",
   projectId: "monsitecalculatrice"
 });
 const db = firebase.firestore();
-const auth = firebase.auth();
+let user = null;
 
-let currentUser = null;
-
-function ajouterChiffre(chiffre) {
-  const affichage = document.getElementById("affichage");
-  affichage.value += chiffre;
-}
-
-function ajouterOperateur(op) {
-  const affichage = document.getElementById("affichage");
-  if (!/[+\-*/]$/.test(affichage.value)) affichage.value += op;
-}
-
-function calculer() {
-  const affichage = document.getElementById("affichage");
-  try {
-    affichage.value = eval(affichage.value);
-  } catch {
-    affichage.value = "Erreur";
-  }
-}
-
-function effacer() {
-  document.getElementById("affichage").value = "";
-}
-
-// Google Sign-In
-function onSignIn(response) {
-  const credential = google.accounts.id.credential;
-  const user = parseJwt(credential);
-  currentUser = user;
-  document.getElementById("user-info").style.display = "block";
-  document.getElementById("login-container").style.display = "none";
-  document.getElementById("user-name").innerText = `Connecté en tant que ${user.name}`;
+// Auth Google
+function handleCredentialResponse(response) {
+  const data = JSON.parse(atob(response.credential.split('.')[1]));
+  user = data;
+  document.getElementById("userDiv").style.display = "block";
+  document.getElementById("loginDiv").style.display = "none";
+  document.getElementById("formAvis").style.display = "block";
+  document.getElementById("userInfo").innerText = `Connecté : ${user.name}`;
+  afficherAvis();
 }
 
 function logout() {
@@ -46,59 +23,69 @@ function logout() {
   location.reload();
 }
 
-function parseJwt(token) {
-  const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-  return JSON.parse(atob(base64));
+// Calculatrice
+function ajouter(val) {
+  document.getElementById("affichage").value += val;
+}
+function effacer() {
+  document.getElementById("affichage").value = "";
+}
+function calculer() {
+  try {
+    document.getElementById("affichage").value = eval(document.getElementById("affichage").value);
+  } catch {
+    document.getElementById("affichage").value = "Erreur";
+  }
 }
 
+// Avis
 async function envoyerAvis() {
-  const texte = document.getElementById("avis-text").value;
+  const texte = document.getElementById("avisText").value;
   const note = parseInt(document.getElementById("etoiles").value);
-  if (!texte || texte.length > 250 || !currentUser) return alert("Connexion requise et avis valide");
+  if (!texte || texte.length > 250 || !user) {
+    return alert("Remplis tous les champs et connecte-toi !");
+  }
 
   await db.collection("avis").add({
-    texte,
-    note,
+    texte, note,
+    date: new Date(),
     likes: [],
-    userId: currentUser.sub,
-    userName: currentUser.name,
-    date: new Date()
+    userId: user.sub,
+    userName: user.name
   });
 
-  document.getElementById("avis-text").value = "";
+  document.getElementById("avisText").value = "";
 }
 
 function afficherAvis() {
-  const container = document.getElementById("liste-avis");
   db.collection("avis").orderBy("date", "desc").onSnapshot(snapshot => {
-    container.innerHTML = "<h2>📣 Avis des utilisateurs</h2>";
+    const liste = document.getElementById("avisListe");
+    liste.innerHTML = "<h2>📣 Avis des utilisateurs</h2>";
     snapshot.forEach(doc => {
       const data = doc.data();
-      const dateDiff = Math.floor((Date.now() - data.date.toDate()) / (1000 * 60 * 60 * 24));
-      const aDejaLike = currentUser && data.likes.includes(currentUser.sub);
+      const jours = Math.floor((Date.now() - data.date.toDate()) / 86400000);
+      const dejaLike = user && data.likes.includes(user.sub);
       const div = document.createElement("div");
       div.className = "avis";
       div.innerHTML = `
         <strong>${"⭐".repeat(data.note)}</strong><br>
         <p>${data.texte}</p>
-        <p>Par <b>${data.userName}</b> — il y a ${dateDiff} jour(s)</p>
-        <button class="like-btn" ${aDejaLike ? "disabled" : ""} onclick="likerAvis('${doc.id}')">
-          ❤️ ${data.likes.length}
-        </button>
+        <small>Par <b>${data.userName || "Anonyme"}</b> - il y a ${jours} jour(s)</small><br>
+        <button class="like-btn" ${dejaLike ? "disabled" : ""} onclick="likerAvis('${doc.id}')">❤️ ${data.likes.length}</button>
       `;
-      container.appendChild(div);
+      liste.appendChild(div);
     });
   });
 }
 
 async function likerAvis(id) {
-  if (!currentUser) return alert("Connecte-toi pour liker !");
-  const docRef = db.collection("avis").doc(id);
-  const docSnap = await docRef.get();
-  const data = docSnap.data();
-  if (!data.likes.includes(currentUser.sub)) {
-    await docRef.update({
-      likes: firebase.firestore.FieldValue.arrayUnion(currentUser.sub)
+  if (!user) return alert("Connecte-toi !");
+  const ref = db.collection("avis").doc(id);
+  const snap = await ref.get();
+  const data = snap.data();
+  if (!data.likes.includes(user.sub)) {
+    await ref.update({
+      likes: firebase.firestore.FieldValue.arrayUnion(user.sub)
     });
   }
 }
