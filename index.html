@@ -2,9 +2,8 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Calculatrice - Addition avec Google Login</title>
+  <title>Calculatrice - Avis Google</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- Script Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -25,17 +24,45 @@
       <button onclick="ajouterChiffre('9')">9</button>
       <button onclick="ajouterChiffre('0')">0</button>
 
-      <!-- Opérations -->
-      <button class="special" onclick="ajouterOperateur('+')">+</button>
-      <button class="special" onclick="calculer()">=</button>
-      <button class="special" onclick="effacer()">C</button>
+      <!-- Opérateurs -->
+      <button onclick="ajouterOperateur('+')">+</button>
+      <button onclick="ajouterOperateur('-')">−</button>
+      <button onclick="ajouterOperateur('*')">×</button>
+      <button onclick="ajouterOperateur('/')">÷</button>
+      <button onclick="ajouterOperateur('**2')">x²</button>
+      <button onclick="ajouterOperateur('Math.sqrt(')">√</button>
+
+      <!-- Actions -->
+      <button onclick="calculer()">=</button>
+      <button onclick="effacer()">C</button>
     </div>
   </div>
 
-  <!-- Bouton Google Login -->
-  <button id="google-login-btn" class="special" style="margin-top: 20px;">Se connecter avec Google</button>
+  <!-- Zone utilisateur + avis -->
+  <div id="user-info" style="display: none; text-align: center; margin-top: 20px;">
+    <p>✅ Vous êtes connecté.</p>
+    <button id="logout-btn">Se déconnecter</button>
+  </div>
+
+  <div id="avis-form" style="display: none; text-align: center; margin-top: 20px;">
+    <h2>Laissez votre avis</h2>
+    <textarea id="avis-text" maxlength="250" rows="4" cols="30" placeholder="Votre avis (250 caractères max)"></textarea>
+    <br/>
+    <label for="etoiles">Note :</label>
+    <select id="etoiles">
+      <option value="1">⭐</option>
+      <option value="2">⭐⭐</option>
+      <option value="3">⭐⭐⭐</option>
+      <option value="4">⭐⭐⭐⭐</option>
+      <option value="5">⭐⭐⭐⭐⭐</option>
+    </select>
+    <br/>
+    <button onclick="envoyerAvis()">Envoyer votre avis</button>
+  </div>
+
+  <!-- Connexion Google -->
+  <button id="google-login-btn">Se connecter avec Google</button>
 
   <script src="script.js"></script>
 </body>
 </html>
-
