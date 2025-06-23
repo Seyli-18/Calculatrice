@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Calculatrice + Avis</title>
   <link rel="stylesheet" href="style.css" />
-
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -23,12 +21,11 @@
     </div>
   </div>
 
-  <!-- Connexion Google avec le bon Client ID -->
+  <!-- Connexion -->
   <div id="loginDiv">
     <div id="g_id_onload"
          data-client_id="287241978051-upf58ku7kfhqofvgreblq2s2g3tts91m.apps.googleusercontent.com"
-         data-callback="handleCredentialResponse"
-         data-auto_prompt="false">
+         data-callback="handleCredentialResponse">
     </div>
     <div class="g_id_signin" data-type="standard"></div>
   </div>
@@ -38,10 +35,10 @@
     <button onclick="logout()">Se déconnecter</button>
   </div>
 
-  <!-- Formulaire d'avis -->
+  <!-- Avis -->
   <div id="formAvis" style="display:none;">
     <h2>Laisser un avis</h2>
-    <textarea id="avisText" placeholder="Votre avis (max 250 caractères)"></textarea><br>
+    <textarea id="avisText" placeholder="Votre avis..."></textarea><br>
     <label>Note :
       <select id="etoiles">
         <option value="1">⭐</option>
@@ -54,10 +51,8 @@
     <button onclick="envoyerAvis()">Envoyer</button>
   </div>
 
-  <!-- Affichage des avis -->
   <div id="avisListe"></div>
 
-  <!-- Script principal -->
   <script src="script.js"></script>
 </body>
 </html>
