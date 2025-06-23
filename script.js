@@ -60,7 +60,7 @@ window.onload = () => {
   );
 
   document.getElementById("logout-btn").addEventListener("click", () => {
-    location.reload(); // recharge la page pour tout réinitialiser
+    location.reload(); // recharge tout
   });
 
   afficher();
