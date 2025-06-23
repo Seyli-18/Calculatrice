@@ -1,17 +1,13 @@
 body {
   font-family: Arial, sans-serif;
-  background-image: url('images/background.jpg');
-  background-repeat: no-repeat;
-  background-position: top center;
-  background-size: contain;
-  background-color: #000000;
+  background-color: #000;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding-top: 30px;
   margin: 0;
   min-height: 100vh;
-  color: #222;
+  color: #fff;
 }
 
 h1 {
@@ -27,6 +23,7 @@ h1 {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
   width: 260px;
+  color: #222;
 }
 
 #affichage {
@@ -69,7 +66,7 @@ button:active {
   background-color: #333;
 }
 
-/* Boutons spéciaux : +, =, C */
+/* Boutons spéciaux : +, =, C et Google Login */
 button.special {
   background-color: #ffb347;
 }
