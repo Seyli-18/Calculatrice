@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Calculatrice + Avis</title>
   <link rel="stylesheet" href="style.css" />
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -17,43 +16,32 @@
   <div class="calculatrice">
     <input type="text" id="affichage" disabled placeholder="0" />
     <div class="clavier">
-      <button onclick="ajouterChiffre('1')">1</button>
-      <button onclick="ajouterChiffre('2')">2</button>
-      <button onclick="ajouterChiffre('3')">3</button>
-      <button onclick="ajouterChiffre('4')">4</button>
-      <button onclick="ajouterChiffre('5')">5</button>
-      <button onclick="ajouterChiffre('6')">6</button>
-      <button onclick="ajouterChiffre('7')">7</button>
-      <button onclick="ajouterChiffre('8')">8</button>
-      <button onclick="ajouterChiffre('9')">9</button>
-      <button onclick="ajouterChiffre('0')">0</button>
-      <button onclick="ajouterOperateur('+')" class="special">+</button>
-      <button onclick="ajouterOperateur('-')" class="special">-</button>
-      <button onclick="ajouterOperateur('*')" class="special">*</button>
-      <button onclick="ajouterOperateur('/')" class="special">/</button>
-      <button onclick="effacer()" class="special">C</button>
-      <button onclick="calculer()" class="special">=</button>
+      <button onclick="ajouter('1')">1</button><button onclick="ajouter('2')">2</button><button onclick="ajouter('3')">3</button><button onclick="ajouter('+')">+</button>
+      <button onclick="ajouter('4')">4</button><button onclick="ajouter('5')">5</button><button onclick="ajouter('6')">6</button><button onclick="ajouter('-')">-</button>
+      <button onclick="ajouter('7')">7</button><button onclick="ajouter('8')">8</button><button onclick="ajouter('9')">9</button><button onclick="ajouter('*')">*</button>
+      <button onclick="ajouter('0')">0</button><button onclick="ajouter('.')">.</button><button onclick="effacer()">C</button><button onclick="calculer()">=</button>
     </div>
   </div>
 
-  <!-- Connexion Google -->
-  <div id="login-container">
+  <!-- Connexion Google avec le bon Client ID -->
+  <div id="loginDiv">
     <div id="g_id_onload"
          data-client_id="287241978051-upf58ku7kfhqofvgreblq2s2g3tts91m.apps.googleusercontent.com"
-         data-callback="onSignIn">
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false">
     </div>
     <div class="g_id_signin" data-type="standard"></div>
   </div>
 
-  <div id="user-info" style="display:none;">
-    <p id="user-name"></p>
+  <div id="userDiv" style="display:none;">
+    <p id="userInfo"></p>
     <button onclick="logout()">Se déconnecter</button>
   </div>
 
-  <!-- Avis -->
-  <h2>Laissez un avis</h2>
-  <div>
-    <textarea id="avis-text" maxlength="250" placeholder="Votre avis..."></textarea><br />
+  <!-- Formulaire d'avis -->
+  <div id="formAvis" style="display:none;">
+    <h2>Laisser un avis</h2>
+    <textarea id="avisText" placeholder="Votre avis (max 250 caractères)"></textarea><br>
     <label>Note :
       <select id="etoiles">
         <option value="1">⭐</option>
@@ -62,12 +50,14 @@
         <option value="4">⭐⭐⭐⭐</option>
         <option value="5">⭐⭐⭐⭐⭐</option>
       </select>
-    </label><br />
-    <button onclick="envoyerAvis()">Envoyer l'avis</button>
+    </label><br>
+    <button onclick="envoyerAvis()">Envoyer</button>
   </div>
 
-  <div id="liste-avis"></div>
+  <!-- Affichage des avis -->
+  <div id="avisListe"></div>
 
+  <!-- Script principal -->
   <script src="script.js"></script>
 </body>
 </html>
