@@ -1,93 +1,83 @@
-// Initialisation Firebase
-firebase.initializeApp({
-  apiKey: "AIzaSyCWSSYXHJNXcbFaJn6AapsEARKCTjhzqXs",
-  authDomain: "monsitecalculatrice.firebaseapp.com",
-  projectId: "monsitecalculatrice"
-});
-const db = firebase.firestore();
-let user = null;
+let expression = "";
 
-// Auth Google
-function handleCredentialResponse(response) {
-  const data = JSON.parse(atob(response.credential.split('.')[1]));
-  user = data;
-  document.getElementById("userDiv").style.display = "block";
-  document.getElementById("loginDiv").style.display = "none";
-  document.getElementById("formAvis").style.display = "block";
-  document.getElementById("userInfo").innerText = `Connecté : ${user.name}`;
-  afficherAvis();
+function ajouterChiffre(chiffre) {
+  expression += chiffre;
+  document.getElementById("affichage").value = expression;
 }
 
-function logout() {
-  google.accounts.id.disableAutoSelect();
-  location.reload();
+function ajouterOperateur(op) {
+  if (expression !== "" && !/[+\-*/]$/.test(expression)) {
+    expression += op;
+    document.getElementById("affichage").value = expression;
+  }
 }
 
-// Calculatrice
-function ajouter(val) {
-  document.getElementById("affichage").value += val;
-}
-function effacer() {
-  document.getElementById("affichage").value = "";
-}
 function calculer() {
   try {
-    document.getElementById("affichage").value = eval(document.getElementById("affichage").value);
+    expression = eval(expression).toString();
+    document.getElementById("affichage").value = expression;
   } catch {
     document.getElementById("affichage").value = "Erreur";
+    expression = "";
   }
 }
 
-// Avis
+function effacer() {
+  expression = "";
+  document.getElementById("affichage").value = "";
+}
+
+// AVIS AVEC FIREBASE
 async function envoyerAvis() {
-  const texte = document.getElementById("avisText").value;
+  const texte = document.getElementById("avis-text").value;
   const note = parseInt(document.getElementById("etoiles").value);
-  if (!texte || texte.length > 250 || !user) {
-    return alert("Remplis tous les champs et connecte-toi !");
+  if (!texte || texte.length > 250) {
+    alert("Votre avis est invalide");
+    return;
   }
 
-  await db.collection("avis").add({
-    texte, note,
-    date: new Date(),
-    likes: [],
-    userId: user.sub,
-    userName: user.name
+  const { collection, addDoc } = window.firestoreFns;
+  await addDoc(collection(window.db, "avis"), {
+    texte,
+    note,
+    likes: 0,
+    date: new Date()
   });
 
-  document.getElementById("avisText").value = "";
+  document.getElementById("avis-text").value = "";
 }
 
 function afficherAvis() {
-  db.collection("avis").orderBy("date", "desc").onSnapshot(snapshot => {
-    const liste = document.getElementById("avisListe");
-    liste.innerHTML = "<h2>📣 Avis des utilisateurs</h2>";
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const jours = Math.floor((Date.now() - data.date.toDate()) / 86400000);
-      const dejaLike = user && data.likes.includes(user.sub);
-      const div = document.createElement("div");
-      div.className = "avis";
-      div.innerHTML = `
-        <strong>${"⭐".repeat(data.note)}</strong><br>
-        <p>${data.texte}</p>
-        <small>Par <b>${data.userName || "Anonyme"}</b> - il y a ${jours} jour(s)</small><br>
-        <button class="like-btn" ${dejaLike ? "disabled" : ""} onclick="likerAvis('${doc.id}')">❤️ ${data.likes.length}</button>
-      `;
-      liste.appendChild(div);
-    });
+  const { collection, onSnapshot } = window.firestoreFns;
+  const avisRef = collection(window.db, "avis");
+  const container = document.getElementById("liste-avis");
+
+  if (!container) return;
+
+  onSnapshot(avisRef, (snapshot) => {
+    container.innerHTML = "<h2>📣 Avis des utilisateurs</h2>";
+    snapshot.docs
+      .sort((a, b) => b.data().date?.toMillis() - a.data().date?.toMillis())
+      .forEach((docSnap) => {
+        const avis = docSnap.data();
+        const div = document.createElement("div");
+        div.className = "avis";
+        div.innerHTML = `
+          <strong>${"⭐".repeat(avis.note)}</strong><br>
+          <p>${avis.texte}</p>
+          <button class="like-btn" onclick="likerAvis('${docSnap.id}')">❤️ ${avis.likes || 0}</button>
+        `;
+        container.appendChild(div);
+      });
   });
 }
 
 async function likerAvis(id) {
-  if (!user) return alert("Connecte-toi !");
-  const ref = db.collection("avis").doc(id);
-  const snap = await ref.get();
-  const data = snap.data();
-  if (!data.likes.includes(user.sub)) {
-    await ref.update({
-      likes: firebase.firestore.FieldValue.arrayUnion(user.sub)
-    });
-  }
+  const { doc, updateDoc, increment } = window.firestoreFns;
+  const avisRef = doc(window.db, "avis", id);
+  await updateDoc(avisRef, {
+    likes: increment(1)
+  });
 }
 
 window.onload = afficherAvis;
