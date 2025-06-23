@@ -8,13 +8,14 @@
   <!-- Firebase SDKs -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, increment, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCWSSYXHJNXcbFaJn6AapsEARKCTjhzqXs",
       authDomain: "monsitecalculatrice.firebaseapp.com",
       projectId: "monsitecalculatrice",
-      storageBucket: "monsitecalculatrice.firebasestorage.app",
+      storageBucket: "monsitecalculatrice.appspot.com",
       messagingSenderId: "287241978051",
       appId: "1:287241978051:web:d6fa38c47a6def42c6e276",
       measurementId: "G-3RY758BE8D"
@@ -22,9 +23,12 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
     window.db = db;
-    window.firestoreFns = { collection, addDoc, onSnapshot, doc, updateDoc, increment };
+    window.auth = auth;
+    window.firestoreFns = { collection, addDoc, onSnapshot, doc, updateDoc, increment, getDoc, setDoc };
+    window.authFns = { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut };
   </script>
 </head>
 <body>
@@ -52,6 +56,12 @@
     </div>
   </div>
 
+  <div id="auth-section">
+    <button id="login-btn" onclick="seConnecter()">Se connecter avec Google</button>
+    <button id="logout-btn" onclick="seDeconnecter()" style="display:none;">Se déconnecter</button>
+    <p id="utilisateur-connecte" style="margin-top:10px;"></p>
+  </div>
+
   <h2>Laissez un avis</h2>
   <div>
     <textarea id="avis-text" maxlength="250" placeholder="Votre avis (max 250 caractères)..."></textarea><br />
@@ -69,6 +79,6 @@
 
   <div id="liste-avis"></div>
 
-  <script src="script.js"></script>
+  <script src="script.js" type="module"></script>
 </body>
 </html>
