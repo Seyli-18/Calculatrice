@@ -1,18 +1,17 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Calculatrice - Avis Google</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Calculatrice + Avis</title>
+  <link rel="stylesheet" href="style.css" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-  <h1>Additionnez vos nombres ici !</h1>
+  <h1>Bienvenue sur ma calculatrice ✨</h1>
 
   <div class="calculatrice">
     <input type="text" id="affichage" disabled placeholder="0" />
     <div class="clavier">
-      <!-- Chiffres -->
       <button onclick="ajouterChiffre('1')">1</button>
       <button onclick="ajouterChiffre('2')">2</button>
       <button onclick="ajouterChiffre('3')">3</button>
@@ -23,44 +22,43 @@
       <button onclick="ajouterChiffre('8')">8</button>
       <button onclick="ajouterChiffre('9')">9</button>
       <button onclick="ajouterChiffre('0')">0</button>
-
-      <!-- Opérateurs -->
       <button onclick="ajouterOperateur('+')">+</button>
-      <button onclick="ajouterOperateur('-')">−</button>
-      <button onclick="ajouterOperateur('*')">×</button>
-      <button onclick="ajouterOperateur('/')">÷</button>
-      <button onclick="ajouterOperateur('**2')">x²</button>
-
-      <!-- Actions -->
-      <button onclick="calculer()">=</button>
+      <button onclick="ajouterOperateur('-')">-</button>
+      <button onclick="ajouterOperateur('*')">*</button>
+      <button onclick="ajouterOperateur('/')">/</button>
       <button onclick="effacer()">C</button>
+      <button onclick="calculer()">=</button>
     </div>
   </div>
 
-  <!-- Zone utilisateur + avis -->
-  <div id="user-info" style="display: none; text-align: center; margin-top: 20px;">
+  <!-- Bouton Google -->
+  <div id="google-login-btn" class="google-btn">Se connecter avec Google</div>
+
+  <!-- Info utilisateur connecté -->
+  <div id="user-info" style="display: none;">
     <p>✅ Vous êtes connecté.</p>
     <button id="logout-btn">Se déconnecter</button>
   </div>
 
-  <div id="avis-form" style="display: none; text-align: center; margin-top: 20px;">
+  <!-- Formulaire d’avis -->
+  <div id="avis-form" style="display: none;">
     <h2>Laissez votre avis</h2>
-    <textarea id="avis-text" maxlength="250" rows="4" cols="30" placeholder="Votre avis (250 caractères max)"></textarea>
-    <br/>
-    <label for="etoiles">Note :</label>
-    <select id="etoiles">
-      <option value="1">⭐</option>
-      <option value="2">⭐⭐</option>
-      <option value="3">⭐⭐⭐</option>
-      <option value="4">⭐⭐⭐⭐</option>
-      <option value="5">⭐⭐⭐⭐⭐</option>
-    </select>
-    <br/>
-    <button onclick="envoyerAvis()">Envoyer votre avis</button>
+    <textarea id="avis-text" maxlength="250" placeholder="Votre avis (250 caractères max)"></textarea>
+    <div>
+      <label for="etoiles">Note :</label>
+      <select id="etoiles">
+        <option value="1">⭐</option>
+        <option value="2">⭐⭐</option>
+        <option value="3">⭐⭐⭐</option>
+        <option value="4">⭐⭐⭐⭐</option>
+        <option value="5">⭐⭐⭐⭐⭐</option>
+      </select>
+    </div>
+    <button onclick="envoyerAvis()">Envoyer</button>
   </div>
 
-  <!-- Connexion Google -->
-  <div id="google-login-btn" style="margin-top: 20px;"></div>
+  <!-- Avis affichés -->
+  <div id="liste-avis" style="margin-top: 30px;"></div>
 
   <script src="script.js"></script>
 </body>
