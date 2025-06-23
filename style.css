@@ -63,7 +63,7 @@ select {
   margin-top: 10px;
 }
 
-#liste-avis {
+#avisListe {
   margin-top: 40px;
   text-align: left;
   max-width: 600px;
@@ -72,7 +72,7 @@ select {
 }
 
 .avis {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: rgba(0, 0, 0, 0.5);
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 15px;
@@ -88,12 +88,4 @@ select {
   color: gold;
   font-size: 20px;
   cursor: pointer;
-}
-
-#login-container {
-  margin: 20px auto;
-}
-
-#user-info {
-  margin: 10px;
 }
