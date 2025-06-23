@@ -2,11 +2,33 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Calculatrice - Accueil</title>
+  <title>Calculatrice + Avis</title>
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCWSSYXHJNXcbFaJn6AapsEARKCTjhzqXs",
+      authDomain: "monsitecalculatrice.firebaseapp.com",
+      projectId: "monsitecalculatrice",
+      storageBucket: "monsitecalculatrice.firebasestorage.app",
+      messagingSenderId: "287241978051",
+      appId: "1:287241978051:web:d6fa38c47a6def42c6e276",
+      measurementId: "G-3RY758BE8D"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.db = db;
+    window.firestoreFns = { collection, addDoc, onSnapshot, doc, updateDoc, increment };
+  </script>
 </head>
 <body>
-  <h1>Ma super calculatrice</h1>
+  <h1>Ma Super Calculatrice</h1>
 
   <div class="calculatrice">
     <input type="text" id="affichage" disabled placeholder="0" />
@@ -30,8 +52,24 @@
     </div>
   </div>
 
-  <a href="avis.html" class="btn-avis">📝 Voir ou poster un avis</a>
+  <h2>Laissez un avis</h2>
+  <div>
+    <textarea id="avis-text" maxlength="250" placeholder="Votre avis (max 250 caractères)..."></textarea><br />
+    <label>Note :
+      <select id="etoiles">
+        <option value="1">⭐</option>
+        <option value="2">⭐⭐</option>
+        <option value="3">⭐⭐⭐</option>
+        <option value="4">⭐⭐⭐⭐</option>
+        <option value="5">⭐⭐⭐⭐⭐</option>
+      </select>
+    </label><br />
+    <button onclick="envoyerAvis()">Envoyer l'avis</button>
+  </div>
+
+  <div id="liste-avis"></div>
 
   <script src="script.js"></script>
 </body>
 </html>
+
