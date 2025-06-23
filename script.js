@@ -32,24 +32,21 @@ function mettreAJourAffichage() {
   document.getElementById("affichage").value = expression;
 }
 
-// Mets ici ton vrai CLIENT_ID Google, récupéré dans Google Cloud Console
-const CLIENT_ID = "TON_CLIENT_ID_GOOGLE.apps.googleusercontent.com";
+const CLIENT_ID = "769072474225-p3ioqhjsrq28u0bbl3c9tb68a3ccq92h.apps.googleusercontent.com";
 
-// Fonction appelée quand la connexion Google réussit
 function handleCredentialResponse(response) {
   console.log("Token JWT reçu:", response.credential);
   alert("Connexion réussie ! Merci pour ton avis.");
 }
 
-// Initialisation Google Sign-In au chargement de la page
 window.onload = () => {
-  google.accounts.id.initialize({
-    client_id: CLIENT_ID,
-    callback: handleCredentialResponse
-  });
-
   const btn = document.getElementById("google-login-btn");
+
   btn.addEventListener("click", () => {
-    google.accounts.id.prompt(); // Affiche la popup Google pour connexion
+    google.accounts.id.initialize({
+      client_id: CLIENT_ID,
+      callback: handleCredentialResponse
+    });
+    google.accounts.id.prompt(); // Affiche la popup de connexion Google
   });
 };
