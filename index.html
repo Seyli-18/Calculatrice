@@ -2,12 +2,11 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Calculatrice + Avis</title>
+  <title>Calculatrice - Accueil</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-  <h1>Bienvenue sur ma calculatrice ✨</h1>
+  <h1>Ma super calculatrice</h1>
 
   <div class="calculatrice">
     <input type="text" id="affichage" disabled placeholder="0" />
@@ -22,43 +21,16 @@
       <button onclick="ajouterChiffre('8')">8</button>
       <button onclick="ajouterChiffre('9')">9</button>
       <button onclick="ajouterChiffre('0')">0</button>
-      <button onclick="ajouterOperateur('+')">+</button>
-      <button onclick="ajouterOperateur('-')">-</button>
-      <button onclick="ajouterOperateur('*')">*</button>
-      <button onclick="ajouterOperateur('/')">/</button>
-      <button onclick="effacer()">C</button>
-      <button onclick="calculer()">=</button>
+      <button onclick="ajouterOperateur('+')" class="special">+</button>
+      <button onclick="ajouterOperateur('-')" class="special">-</button>
+      <button onclick="ajouterOperateur('*')" class="special">*</button>
+      <button onclick="ajouterOperateur('/')" class="special">/</button>
+      <button onclick="effacer()" class="special">C</button>
+      <button onclick="calculer()" class="special">=</button>
     </div>
   </div>
 
-  <!-- Bouton Google -->
-  <div id="google-login-btn" class="google-btn">Se connecter avec Google</div>
-
-  <!-- Info utilisateur connecté -->
-  <div id="user-info" style="display: none;">
-    <p>✅ Vous êtes connecté.</p>
-    <button id="logout-btn">Se déconnecter</button>
-  </div>
-
-  <!-- Formulaire d’avis -->
-  <div id="avis-form" style="display: none;">
-    <h2>Laissez votre avis</h2>
-    <textarea id="avis-text" maxlength="250" placeholder="Votre avis (250 caractères max)"></textarea>
-    <div>
-      <label for="etoiles">Note :</label>
-      <select id="etoiles">
-        <option value="1">⭐</option>
-        <option value="2">⭐⭐</option>
-        <option value="3">⭐⭐⭐</option>
-        <option value="4">⭐⭐⭐⭐</option>
-        <option value="5">⭐⭐⭐⭐⭐</option>
-      </select>
-    </div>
-    <button onclick="envoyerAvis()">Envoyer</button>
-  </div>
-
-  <!-- Avis affichés -->
-  <div id="liste-avis" style="margin-top: 30px;"></div>
+  <a href="avis.html" class="btn-avis">📝 Voir ou poster un avis</a>
 
   <script src="script.js"></script>
 </body>
