@@ -1,29 +1,40 @@
 body {
-  font-family: Arial, sans-serif;
-  background-color: #000;
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-image: url('images/background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 30px;
-  margin: 0;
-  min-height: 100vh;
-  color: #fff;
 }
 
 h1 {
-  text-align: center;
   font-size: 2rem;
-  animation: arcEnCielEtZoom 3s ease-in-out infinite;
-  text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+  animation: arcEnCielEtZoom 5s infinite;
+  margin-top: 20px;
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes arcEnCielEtZoom {
+  0% { color: red; transform: scale(1); }
+  20% { color: orange; transform: scale(1.1); }
+  40% { color: yellow; transform: scale(1.2); }
+  60% { color: green; transform: scale(1.1); }
+  80% { color: blue; transform: scale(1); }
+  100% { color: red; transform: scale(1); }
 }
 
 .calculatrice {
   background-color: rgba(255, 255, 255, 0.9);
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  width: 260px;
-  color: #222;
+  box-shadow: 0 0 10px #333;
+  margin-top: 15px;
+  width: 280px;
 }
 
 #affichage {
@@ -31,74 +42,49 @@ h1 {
   height: 50px;
   font-size: 24px;
   text-align: right;
-  padding: 10px;
   margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 10px;
   box-sizing: border-box;
-  background-color: #f7f7f7;
-  pointer-events: none;
+  border-radius: 5px;
 }
 
 .clavier {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
 }
 
 button {
-  height: 50px;
-  font-size: 20px;
+  height: 45px;
+  font-size: 18px;
   border: none;
-  border-radius: 5px;
-  background-color: #7d7d7d;
-  color: white;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  user-select: none;
+  background-color: #3498db;
+  color: white;
+  transition: background 0.2s ease;
 }
 
 button:hover {
-  background-color: #555;
+  background-color: #2980b9;
 }
 
-button:active {
-  background-color: #333;
+/* Bouton Google */
+#google-login-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #4285F4;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 25px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(66,133,244,0.6);
+  z-index: 1000;
 }
 
-/* Boutons spéciaux : +, =, C et Google Login */
-button.special {
-  background-color: #ffb347;
-}
-
-button.special:hover {
-  background-color: #ff9f1a;
-}
-
-/* Animation combinée : couleur + taille */
-@keyframes arcEnCielEtZoom {
-  0% {
-    color: red;
-    transform: scale(1);
-  }
-  20% {
-    color: orange;
-    transform: scale(1.1);
-  }
-  40% {
-    color: yellow;
-    transform: scale(1.2);
-  }
-  60% {
-    color: green;
-    transform: scale(1.1);
-  }
-  80% {
-    color: blue;
-    transform: scale(1);
-  }
-  100% {
-    color: red;
-    transform: scale(1);
-  }
+#google-login-btn:hover {
+  background-color: #3367d6;
 }
