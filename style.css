@@ -1,53 +1,30 @@
 body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-image: url('https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1350&q=80');
+  background: url("images/background.jpg") no-repeat center center fixed;
   background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  font-family: Arial, sans-serif;
+  color: white;
+  text-align: center;
+  padding: 20px;
 }
 
 h1 {
-  font-size: 2rem;
-  animation: arcEnCielEtZoom 5s infinite;
-  margin-top: 20px;
-  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
-  color: white;
-}
-
-@keyframes arcEnCielEtZoom {
-  0% { color: red; transform: scale(1); }
-  20% { color: orange; transform: scale(1.1); }
-  40% { color: yellow; transform: scale(1.2); }
-  60% { color: green; transform: scale(1.1); }
-  80% { color: blue; transform: scale(1); }
-  100% { color: red; transform: scale(1); }
+  font-size: 2.5rem;
+  color: #f39c12;
 }
 
 .calculatrice {
-  background-color: rgba(255, 255, 255, 0.95);
-  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.6);
   padding: 20px;
-  box-shadow: 0 0 10px #00000055;
-  margin-top: 20px;
-  width: 280px;
+  border-radius: 12px;
+  display: inline-block;
 }
 
-#affichage {
+input#affichage {
   width: 100%;
-  height: 50px;
   font-size: 24px;
-  text-align: right;
-  margin-bottom: 15px;
   padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
+  margin-bottom: 15px;
+  text-align: right;
 }
 
 .clavier {
@@ -57,16 +34,53 @@ h1 {
 }
 
 button {
-  height: 45px;
+  padding: 15px;
   font-size: 18px;
   border: none;
-  border-radius: 8px;
-  cursor: pointer;
   background-color: #3498db;
   color: white;
-  transition: background 0.2s ease;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
 button:hover {
   background-color: #2980b9;
+}
+
+textarea {
+  width: 300px;
+  height: 100px;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+}
+
+select {
+  margin: 10px;
+}
+
+#liste-avis {
+  margin-top: 30px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.avis {
+  background-color: rgba(0,0,0,0.4);
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  text-align: left;
+}
+
+.google-btn {
+  background-color: #4285F4;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 25px;
+  display: inline-block;
+  margin: 20px auto;
+  cursor: pointer;
+  font-weight: bold;
 }
