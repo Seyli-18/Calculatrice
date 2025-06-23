@@ -10,14 +10,13 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const db = firebase.firestore();
 const auth = firebase.auth();
 
 let expression = "";
 let utilisateur = null;
 
-// Calculatrice
+// Fonctions calculatrice
 function ajouterChiffre(chiffre) {
   expression += chiffre;
   document.getElementById("affichage").value = expression;
@@ -45,6 +44,12 @@ function effacer() {
   document.getElementById("affichage").value = "";
 }
 
+// Rendre les fonctions accessibles dans HTML
+window.ajouterChiffre = ajouterChiffre;
+window.ajouterOperateur = ajouterOperateur;
+window.calculer = calculer;
+window.effacer = effacer;
+
 // Connexion Google
 document.getElementById("login-btn").addEventListener("click", async () => {
   const provider = new firebase.auth.GoogleAuthProvider();
@@ -59,7 +64,7 @@ document.getElementById("logout-btn").addEventListener("click", async () => {
   await auth.signOut();
 });
 
-// Mise à jour UI
+// Suivi de connexion
 auth.onAuthStateChanged((user) => {
   utilisateur = user;
   document.getElementById("login-btn").style.display = user ? "none" : "inline-block";
@@ -69,7 +74,7 @@ auth.onAuthStateChanged((user) => {
 
 document.getElementById("envoyer-btn").addEventListener("click", envoyerAvis);
 
-// Envoi Avis
+// Envoyer avis
 async function envoyerAvis() {
   if (!utilisateur) {
     alert("Veuillez vous connecter pour publier un avis.");
@@ -95,7 +100,7 @@ async function envoyerAvis() {
   document.getElementById("avis-text").value = "";
 }
 
-// Affichage Avis
+// Affichage des avis
 function afficherAvis() {
   const container = document.getElementById("liste-avis");
 
@@ -120,7 +125,7 @@ function afficherAvis() {
   });
 }
 
-// Like Avis
+// Liker un avis
 async function likerAvis(id) {
   if (!utilisateur) {
     alert("Veuillez vous connecter pour liker un avis.");
@@ -139,5 +144,8 @@ async function likerAvis(id) {
   const avisRef = db.collection("avis").doc(id);
   await avisRef.update({ likes: firebase.firestore.FieldValue.increment(1) });
 }
+
+window.afficherAvis = afficherAvis;
+window.likerAvis = likerAvis;
 
 window.onload = afficherAvis;
