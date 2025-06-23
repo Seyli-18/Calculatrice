@@ -32,30 +32,24 @@ function mettreAJourAffichage() {
   document.getElementById("affichage").value = expression;
 }
 
-// Ajout dans script.js à la fin
+// Mets ici ton vrai CLIENT_ID Google, récupéré dans Google Cloud Console
+const CLIENT_ID = "TON_CLIENT_ID_GOOGLE.apps.googleusercontent.com";
 
-window.onload = () => {
-  const btn = document.getElementById("google-login-btn");
-
-  // Client ID récupéré sur Google Cloud Console
-  const clientId = "TON_CLIENT_ID_GOOGLE.apps.googleusercontent.com";
-
-  btn.addEventListener("click", () => {
-    google.accounts.id.initialize({
-      client_id: clientId,
-      callback: handleCredentialResponse
-    });
-    google.accounts.id.prompt(); // Affiche popup login Google
-  });
-};
-
-// Fonction appelée après login Google réussi
+// Fonction appelée quand la connexion Google réussit
 function handleCredentialResponse(response) {
-  // response.credential contient le token JWT
   console.log("Token JWT reçu:", response.credential);
-
-  // Ici tu peux décoder le token, vérifier côté serveur, etc.
-  // Pour l'instant on affiche juste un message :
   alert("Connexion réussie ! Merci pour ton avis.");
 }
 
+// Initialisation Google Sign-In au chargement de la page
+window.onload = () => {
+  google.accounts.id.initialize({
+    client_id: CLIENT_ID,
+    callback: handleCredentialResponse
+  });
+
+  const btn = document.getElementById("google-login-btn");
+  btn.addEventListener("click", () => {
+    google.accounts.id.prompt(); // Affiche la popup Google pour connexion
+  });
+};
