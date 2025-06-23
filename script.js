@@ -29,14 +29,18 @@ function effacer() {
 
 let utilisateur = null;
 
-function seConnecter() {
+document.getElementById("login-btn").addEventListener("click", async () => {
   const provider = new window.authFns.GoogleAuthProvider();
-  window.authFns.signInWithPopup(window.auth, provider);
-}
+  try {
+    await window.authFns.signInWithPopup(window.auth, provider);
+  } catch (error) {
+    alert("Erreur de connexion.");
+  }
+});
 
-function seDeconnecter() {
-  window.authFns.signOut(window.auth);
-}
+document.getElementById("logout-btn").addEventListener("click", async () => {
+  await window.authFns.signOut(window.auth);
+});
 
 window.authFns.onAuthStateChanged(window.auth, (user) => {
   utilisateur = user;
@@ -45,9 +49,11 @@ window.authFns.onAuthStateChanged(window.auth, (user) => {
   document.getElementById("utilisateur-connecte").innerText = user ? `Connecté en tant que : ${user.email}` : "";
 });
 
+document.getElementById("envoyer-btn").addEventListener("click", envoyerAvis);
+
 async function envoyerAvis() {
   if (!utilisateur) {
-    alert("Vous devez être connecté pour publier un avis.");
+    alert("Vous devez vous connecter pour publier un avis.");
     return;
   }
 
@@ -101,7 +107,7 @@ function afficherAvis() {
 
 async function likerAvis(id) {
   if (!utilisateur) {
-    alert("Connectez-vous pour liker !");
+    alert("Vous devez vous connecter pour liker un avis.");
     return;
   }
 
