@@ -1,86 +1,85 @@
 let expression = "";
-const CLIENT_ID = "TON_CLIENT_ID_GOOGLE.apps.googleusercontent.com";
 
+// ---------------- CALCULATRICE ----------------
 function ajouterChiffre(chiffre) {
   expression += chiffre;
-  afficher();
+  document.getElementById("affichage").value = expression;
 }
 
 function ajouterOperateur(op) {
-  if (expression && !/[+\-*/(]$/.test(expression)) {
+  if (expression !== "" && !/[+\-*/]$/.test(expression)) {
     expression += op;
-    afficher();
+    document.getElementById("affichage").value = expression;
   }
 }
 
 function calculer() {
   try {
     expression = eval(expression).toString();
+    document.getElementById("affichage").value = expression;
   } catch {
-    expression = "Erreur";
+    document.getElementById("affichage").value = "Erreur";
+    expression = "";
   }
-  afficher();
 }
 
 function effacer() {
   expression = "";
-  afficher();
+  document.getElementById("affichage").value = "";
 }
 
-function afficher() {
-  document.getElementById("affichage").value = expression || "0";
-}
-
+// ---------------- AVIS ----------------
 function envoyerAvis() {
   const texte = document.getElementById("avis-text").value;
   const note = document.getElementById("etoiles").value;
-  if (!texte) return alert("Merci de remplir votre avis !");
-  const avis = { texte, note };
 
-  const avisExistants = JSON.parse(localStorage.getItem("avis")) || [];
-  avisExistants.push(avis);
-  localStorage.setItem("avis", JSON.stringify(avisExistants));
+  if (!texte || texte.length > 250) {
+    return alert("Votre avis doit contenir 1 à 250 caractères.");
+  }
 
+  const avis = {
+    texte,
+    note,
+    likes: 0,
+    id: Date.now()
+  };
+
+  const anciens = JSON.parse(localStorage.getItem("avis") || "[]");
+  anciens.push(avis);
+  localStorage.setItem("avis", JSON.stringify(anciens));
   document.getElementById("avis-text").value = "";
   afficherAvis();
 }
 
 function afficherAvis() {
-  const liste = document.getElementById("liste-avis");
-  const avis = JSON.parse(localStorage.getItem("avis")) || [];
+  const container = document.getElementById("liste-avis");
+  if (!container) return;
 
-  liste.innerHTML = "<h2>📢 Avis des utilisateurs :</h2>";
-  avis.forEach(({ texte, note }) => {
+  const avisList = JSON.parse(localStorage.getItem("avis") || "[]");
+  container.innerHTML = "<h2>📣 Avis des utilisateurs</h2>";
+
+  avisList.reverse().forEach(avis => {
     const div = document.createElement("div");
     div.className = "avis";
-    div.innerHTML = `<strong>${"⭐".repeat(note)}</strong><br>${texte}`;
-    liste.appendChild(div);
+    div.innerHTML = `
+      <strong>${"⭐".repeat(avis.note)}</strong><br>
+      <p>${avis.texte}</p>
+      <button class="like-btn" onclick="likerAvis(${avis.id})">❤️ ${avis.likes}</button>
+    `;
+    container.appendChild(div);
   });
 }
 
-// Connexion Google
-function handleCredentialResponse(response) {
-  console.log("Connexion réussie :", response.credential);
-  document.getElementById("google-login-btn").style.display = "none";
-  document.getElementById("user-info").style.display = "block";
-  document.getElementById("avis-form").style.display = "block";
+function likerAvis(id) {
+  let avisList = JSON.parse(localStorage.getItem("avis") || "[]");
+  avisList = avisList.map(avis => {
+    if (avis.id === id) avis.likes++;
+    return avis;
+  });
+  localStorage.setItem("avis", JSON.stringify(avisList));
   afficherAvis();
 }
 
-window.onload = () => {
-  google.accounts.id.initialize({
-    client_id: CLIENT_ID,
-    callback: handleCredentialResponse
-  });
+// Chargement automatique des avis si présent
+window.onload = afficherAvis;
 
-  document.getElementById("google-login-btn").addEventListener("click", () => {
-    google.accounts.id.prompt();
-  });
-
-  document.getElementById("logout-btn").addEventListener("click", () => {
-    location.reload();
-  });
-
-  afficher();
-  afficherAvis(); // Affiche les avis même sans connexion
-};
