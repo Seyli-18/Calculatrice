@@ -2,11 +2,14 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Calculatrice - Addition</title>
+  <title>Calculatrice - Addition avec Google Login</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- Script Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
   <h1>Additionnez vos nombres ici !</h1>
+
   <div class="calculatrice">
     <input type="text" id="affichage" disabled placeholder="0" />
     <div class="clavier">
@@ -29,13 +32,10 @@
     </div>
   </div>
 
-  <!-- Bouton Google -->
-  <button id="google-login-btn" type="button" style="position: fixed; bottom: 20px; right: 20px; padding: 10px 15px; background:#4285F4; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
-    Se connecter avec Google
-  </button>
+  <!-- Bouton Google Login -->
+  <button id="google-login-btn" class="special" style="margin-top: 20px;">Se connecter avec Google</button>
 
-  <!-- Librairie Google Sign-In -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="script.js"></script>
 </body>
 </html>
+
