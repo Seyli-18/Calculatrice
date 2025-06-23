@@ -1,33 +1,31 @@
 body {
   font-family: Arial, sans-serif;
-  background-image: url('images/background.jpg');
-  background-size: cover;
-  background-attachment: fixed;
-  margin: 0;
-  padding: 20px;
+  background: #1a1a1a;
   color: white;
   text-align: center;
+  padding: 20px;
 }
 
 h1 {
-  font-size: 2rem;
   color: #f39c12;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 .calculatrice {
-  background-color: rgba(0,0,0,0.6);
+  background-color: rgba(255, 255, 255, 0.1);
   padding: 20px;
   border-radius: 10px;
   display: inline-block;
 }
 
-input#affichage {
+#affichage {
   width: 100%;
   padding: 10px;
   font-size: 24px;
-  text-align: right;
   margin-bottom: 15px;
+  text-align: right;
+  border-radius: 5px;
+  border: none;
 }
 
 .clavier {
@@ -39,15 +37,15 @@ input#affichage {
 button {
   padding: 15px;
   font-size: 18px;
-  border-radius: 5px;
   border: none;
+  border-radius: 5px;
+  cursor: pointer;
   background-color: #3498db;
   color: white;
-  cursor: pointer;
 }
 
 button.special {
-  background-color: #ffb347;
+  background-color: #e67e22;
 }
 
 button:hover {
@@ -60,28 +58,16 @@ textarea {
   margin-top: 20px;
   border-radius: 5px;
   padding: 10px;
-}
-
-select {
-  margin-top: 10px;
-  padding: 5px;
   font-size: 16px;
 }
 
-.btn-avis,
-.btn-retour {
-  display: inline-block;
-  margin-top: 30px;
-  background: #2ecc71;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 20px;
-  text-decoration: none;
-  font-weight: bold;
+select {
+  font-size: 16px;
+  margin-top: 10px;
 }
 
 #liste-avis {
-  margin-top: 30px;
+  margin-top: 40px;
   text-align: left;
   max-width: 600px;
   margin-left: auto;
@@ -89,10 +75,10 @@ select {
 }
 
 .avis {
-  background-color: rgba(0,0,0,0.4);
+  background-color: rgba(255, 255, 255, 0.08);
   padding: 15px;
+  border-radius: 8px;
   margin-bottom: 15px;
-  border-radius: 6px;
   position: relative;
 }
 
@@ -100,8 +86,8 @@ select {
   position: absolute;
   top: 10px;
   right: 15px;
-  background: none;
   border: none;
+  background: none;
   color: gold;
   font-size: 20px;
   cursor: pointer;
