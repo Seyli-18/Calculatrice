@@ -84,9 +84,10 @@ window.onload = function () {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    for (let i = 0; i < snake.length; i++) {
-      ctx.fillStyle = i === 0 ? "lime" : "white";
-      ctx.fillRect(snake[i].x, snake[i].y, box, box);
+    // ✅ Tous les blocs du corps en VERT
+    ctx.fillStyle = "green";
+    for (let part of snake) {
+      ctx.fillRect(part.x, part.y, box, box);
     }
 
     ctx.fillStyle = "green";
@@ -102,11 +103,12 @@ window.onload = function () {
     if (direction === "UP") head.y -= box;
     if (direction === "DOWN") head.y += box;
 
-    if (
+    const hasCollision =
       head.x < 0 || head.x >= canvas.width ||
       head.y < 0 || head.y >= canvas.height ||
-      snake.slice(1).some(p => p.x === head.x && p.y === head.y)
-    ) {
+      snake.slice(1).some(p => p.x === head.x && p.y === head.y);
+
+    if (!isTeleporting && hasCollision) {
       if (vies > 1) {
         vies--;
         direction = null;
