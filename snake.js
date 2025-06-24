@@ -1,3 +1,5 @@
+let game = setInterval(draw, 150);
+
 const firebaseConfig = {
   apiKey: "AIzaSyCWSSYXHJNXcbFaJn6AapsEARKCTjhzqXs",
   authDomain: "monsitecalculatrice.firebaseapp.com",
