@@ -97,3 +97,17 @@ select {
   margin: 20px 0;
 }
 
+/* ... ton CSS actuel ... */
+
+.avis-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.avis-header img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
