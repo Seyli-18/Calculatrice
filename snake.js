@@ -3,9 +3,13 @@ window.onload = function () {
   const ctx = canvas.getContext("2d");
   const box = 20;
 
-  // Utilise pseudo existant ou demande une seule fois
-  let pseudo = localStorage.getItem("pseudoSnake") || prompt("Entrez votre pseudo :") || "Anonyme";
-  localStorage.setItem("pseudoSnake", pseudo);
+  let pseudo = localStorage.getItem("pseudoSnake");
+  if (!pseudo) {
+    do {
+      pseudo = prompt("Entrez votre pseudo :")?.trim();
+    } while (!pseudo);
+    localStorage.setItem("pseudoSnake", pseudo);
+  }
 
   document.getElementById("pseudo").innerText = pseudo;
 
@@ -13,11 +17,11 @@ window.onload = function () {
   let bestScore = parseInt(localStorage.getItem("bestScore_" + pseudo)) || 0;
   let vies = 1;
   let shield = false;
+  let direction;
+  let gameRunning = true;
   let snake = [{ x: 9 * box, y: 10 * box }];
   let food = randomPosition();
   let bonus = randomBonus();
-  let direction;
-  let gameRunning = true;
 
   updateScoreDisplay();
 
@@ -37,6 +41,12 @@ window.onload = function () {
     };
   }
 
+  function updateScoreDisplay() {
+    document.getElementById("score").innerText = `Score : ${score}`;
+    document.getElementById("vies").innerText = `Vie : ${vies}`;
+    document.getElementById("best").innerText = `Best score : ${bestScore}`;
+  }
+
   document.addEventListener("keydown", (e) => {
     if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
     else if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
@@ -44,11 +54,16 @@ window.onload = function () {
     else if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
   });
 
-  function updateScoreDisplay() {
-    document.getElementById("score").innerText = `Score : ${score}`;
-    document.getElementById("vies").innerText = `Vie : ${vies}`;
-    document.getElementById("best").innerText = `Best score : ${bestScore}`;
-  }
+  window.mobileMove = function (dir) {
+    if (
+      (dir === "LEFT" && direction !== "RIGHT") ||
+      (dir === "RIGHT" && direction !== "LEFT") ||
+      (dir === "UP" && direction !== "DOWN") ||
+      (dir === "DOWN" && direction !== "UP")
+    ) {
+      direction = dir;
+    }
+  };
 
   function draw() {
     if (!gameRunning) return;
@@ -63,9 +78,8 @@ window.onload = function () {
     ctx.fillStyle = "red";
     ctx.fillRect(food.x, food.y, box, box);
 
-    if (bonus.type === "life") ctx.fillStyle = "pink";
-    else if (bonus.type === "shield") ctx.fillStyle = "cyan";
-    else ctx.fillStyle = "violet";
+    ctx.fillStyle =
+      bonus.type === "life" ? "pink" : bonus.type === "shield" ? "cyan" : "violet";
     ctx.fillRect(bonus.x, bonus.y, box, box);
 
     let head = { x: snake[0].x, y: snake[0].y };
@@ -84,8 +98,7 @@ window.onload = function () {
       } else if (vies > 1) {
         vies--;
       } else {
-        endGame();
-        return;
+        return endGame();
       }
     }
 
@@ -112,7 +125,6 @@ window.onload = function () {
   function endGame() {
     clearInterval(game);
     gameRunning = false;
-
     document.getElementById("final-score").innerText = `Score : ${score}`;
     document.getElementById("game-over").style.display = "block";
 
@@ -122,9 +134,7 @@ window.onload = function () {
 
     const top = JSON.parse(localStorage.getItem("snakeTop10") || "[]");
     top.push({ pseudo, score });
-    const top10 = [...top]
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 10);
+    const top10 = [...top].sort((a, b) => b.score - a.score).slice(0, 10);
     localStorage.setItem("snakeTop10", JSON.stringify(top10));
     showTopScores(top10);
   }
@@ -143,4 +153,3 @@ window.onload = function () {
   showTopScores(storedTop);
   const game = setInterval(draw, 150);
 };
-
