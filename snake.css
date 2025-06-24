@@ -8,7 +8,7 @@ body {
 .container {
   display: flex;
   justify-content: center;
-  align-items: start;
+  align-items: flex-start;
   margin-top: 20px;
 }
 
@@ -20,13 +20,13 @@ body {
   margin-right: 20px;
 }
 
-.game-zone {
-  position: relative;
-}
-
 canvas {
   background-color: black;
   border: 3px solid white;
+}
+
+.game-zone {
+  position: relative;
 }
 
 #game-over {
@@ -57,4 +57,24 @@ canvas {
   margin: 40px auto;
   max-width: 400px;
   text-align: center;
+}
+
+/* Contrôles tactiles (mobile) */
+.touch-controls {
+  position: absolute;
+  right: -100px;
+  top: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.touch-controls button {
+  font-size: 24px;
+  padding: 10px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
 }
