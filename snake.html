@@ -6,17 +6,28 @@
   <link rel="stylesheet" href="snake.css" />
 </head>
 <body>
+  <div class="container">
+    <div class="sidebar">
+      <h2>🎮 Joueur : <span id="pseudo"></span></h2>
+      <p id="score">Score : 0</p>
+      <p id="vies">Vie : 1</p>
+      <p id="best">Best score : 0</p>
+    </div>
+    <div class="game-zone">
+      <canvas id="snake" width="400" height="400"></canvas>
+      <div id="game-over">
+        <h2>💀 Game Over !</h2>
+        <p id="final-score">Score : 0</p>
+        <button onclick="window.location.reload()">🔁 Rejouer</button>
+      </div>
+    </div>
+  </div>
 
-<h1>🐍 Snake Deluxe</h1>
-<p id="score">Score : 0 | Vie : 1</p>
-<p id="pseudoZone"></p>
-<canvas id="snake" width="400" height="400"></canvas>
-<div id="top-scores">
-  <h2>🏆 Top 10</h2>
-  <ol id="classement"></ol>
-</div>
+  <div id="top-scores">
+    <h2>🏆 Top 10</h2>
+    <ol id="classement"></ol>
+  </div>
 
-<script src="snake.js"></script>
+  <script src="snake.js"></script>
 </body>
 </html>
-
