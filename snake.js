@@ -111,13 +111,14 @@ window.onload = function () {
       if (vies > 1) {
         vies--;
         direction = null;
-        let offsetX = 9 * box - snake[0].x;
-        let offsetY = 10 * box - snake[0].y;
+
+        // Ne pas perdre la taille → on déplace le corps au centre
+        const dx = 9 * box - snake[0].x;
+        const dy = 10 * box - snake[0].y;
         snake = snake.map(part => ({
-        x: part.x + offsetX,
-        y: part.y + offsetY
+          x: part.x + dx,
+          y: part.y + dy
         }));
-        direction = null;
 
         food = randomPosition();
         bonus = randomBonus();
