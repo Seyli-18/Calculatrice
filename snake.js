@@ -161,3 +161,19 @@ window.onload = async function () {
   afficherTopScores();
   const game = setInterval(draw, 150);
 };
+
+document.getElementById("rejouer-btn").addEventListener("click", () => {
+  document.getElementById("game-over").style.display = "none";
+  snake = [{ x: 9 * box, y: 10 * box }];
+  food = randomPosition();
+  bonus = randomBonus();
+  score = 0;
+  vies = 1;
+  shield = false;
+  direction = null;
+  gameRunning = true;
+  updateScoreDisplay();
+  afficherTopScores();
+  game = setInterval(draw, 150);
+});
+
