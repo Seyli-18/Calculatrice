@@ -7,10 +7,17 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+let game, isPaused = false;
+
 window.onload = function () {
   const canvas = document.getElementById("snake");
   const ctx = canvas.getContext("2d");
   const box = 20;
+
+  const audio = new Audio("https://cdn.pixabay.com/download/audio/2023/06/10/audio_0ef8e7bfb7.mp3?filename=arcade-loop-146245.mp3");
+  audio.loop = true;
+  audio.volume = 0.2;
+  audio.play();
 
   let pseudo;
   do {
@@ -21,20 +28,12 @@ window.onload = function () {
   let score = 0;
   let bestScore = 0;
   let vies = 1;
-  let shield = false;
   let direction = null;
-  let gameRunning = true;
   let canChangeDirection = true;
+  let gameRunning = true;
   let snake = [{ x: 9 * box, y: 10 * box }];
   let food = randomPosition();
   let bonus = randomBonus();
-  let game;
-
-  startGame();
-
-  function startGame() {
-    game = setInterval(draw, 150);
-  }
 
   function randomPosition() {
     return {
@@ -44,7 +43,7 @@ window.onload = function () {
   }
 
   function randomBonus() {
-    const types = ["life", "shield", "growth"];
+    const types = ["life", "grow", "double"];
     return {
       x: Math.floor(Math.random() * 20) * box,
       y: Math.floor(Math.random() * 20) * box,
@@ -59,7 +58,7 @@ window.onload = function () {
   }
 
   document.addEventListener("keydown", (e) => {
-    if (!canChangeDirection) return;
+    if (!canChangeDirection || isPaused) return;
     canChangeDirection = false;
     if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
     else if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
@@ -68,7 +67,7 @@ window.onload = function () {
   });
 
   window.mobileMove = function (dir) {
-    if (!canChangeDirection) return;
+    if (!canChangeDirection || isPaused) return;
     canChangeDirection = false;
     if (
       (dir === "LEFT" && direction !== "RIGHT") ||
@@ -81,20 +80,20 @@ window.onload = function () {
   };
 
   function draw() {
-    if (!gameRunning) return;
+    if (!gameRunning || isPaused) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (let i = 0; i < snake.length; i++) {
-      ctx.fillStyle = i === 0 ? (shield ? "blue" : "lime") : "white";
+      ctx.fillStyle = i === 0 ? "lime" : "white";
       ctx.fillRect(snake[i].x, snake[i].y, box, box);
     }
 
-    ctx.fillStyle = "red";
+    ctx.fillStyle = "green";
     ctx.fillRect(food.x, food.y, box, box);
 
     ctx.fillStyle =
-      bonus.type === "life" ? "pink" : bonus.type === "shield" ? "cyan" : "violet";
+      bonus.type === "life" ? "red" : bonus.type === "double" ? "yellow" : "green";
     ctx.fillRect(bonus.x, bonus.y, box, box);
 
     let head = { x: snake[0].x, y: snake[0].y };
@@ -103,15 +102,20 @@ window.onload = function () {
     if (direction === "UP") head.y -= box;
     if (direction === "DOWN") head.y += box;
 
+    // collision
     if (
       head.x < 0 || head.x >= canvas.width ||
       head.y < 0 || head.y >= canvas.height ||
       snake.slice(1).some(p => p.x === head.x && p.y === head.y)
     ) {
-      if (shield) {
-        shield = false;
-      } else if (vies > 1) {
+      if (vies > 1) {
         vies--;
+        direction = null;
+        snake = [{ x: 9 * box, y: 10 * box }];
+        food = randomPosition();
+        bonus = randomBonus();
+        updateScoreDisplay();
+        return;
       } else {
         return endGame();
       }
@@ -125,10 +129,14 @@ window.onload = function () {
     }
 
     if (head.x === bonus.x && head.y === bonus.y) {
-      if (bonus.type === "life") vies++;
-      else if (bonus.type === "shield") shield = true;
-      else if (bonus.type === "growth") {
-        for (let i = 0; i < 2; i++) snake.push({ ...snake[snake.length - 1] });
+      if (bonus.type === "life") {
+        vies++;
+      } else if (bonus.type === "grow") {
+        snake.push({ ...snake[snake.length - 1] });
+      } else if (bonus.type === "double") {
+        for (let i = 0; i < 2; i++) {
+          snake.push({ ...snake[snake.length - 1] });
+        }
       }
       bonus = randomBonus();
     }
@@ -177,13 +185,19 @@ window.onload = function () {
     bonus = randomBonus();
     score = 0;
     vies = 1;
-    shield = false;
     direction = null;
     gameRunning = true;
     updateScoreDisplay();
     afficherTopScores();
+    clearInterval(game);
     game = setInterval(draw, 150);
   });
 
+  document.getElementById("pause-btn").addEventListener("click", () => {
+    isPaused = !isPaused;
+    document.getElementById("pause-btn").innerText = isPaused ? "▶️ Reprendre" : "⏸ Pause";
+  });
+
   afficherTopScores();
+  game = setInterval(draw, 150);
 };
