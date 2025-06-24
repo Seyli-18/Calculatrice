@@ -63,9 +63,9 @@ auth.onAuthStateChanged((user) => {
     : "";
 });
 
+// Envoyer un avis
 document.getElementById("envoyer-btn").addEventListener("click", envoyerAvis);
 
-// Poster un avis
 async function envoyerAvis() {
   const msg = document.getElementById("attente-msg");
   msg.innerText = "";
@@ -85,7 +85,7 @@ async function envoyerAvis() {
 
   const now = new Date();
 
-  // Vérifie le délai de 1h depuis le dernier avis
+  // Vérifie délai 1h
   const ref = db.collection("avis")
     .where("userId", "==", utilisateur.uid)
     .orderBy("date", "desc")
@@ -97,28 +97,28 @@ async function envoyerAvis() {
     const diffMs = now - dernier;
     if (diffMs < 3600000) {
       const minutesRestantes = Math.ceil((3600000 - diffMs) / 60000);
-      msg.innerText = `⏳ Vous devez attendre ${minutesRestantes} minute(s) avant de pouvoir poster un nouvel avis.`;
+      msg.innerText = `⏳ Vous devez attendre ${minutesRestantes} minute(s) avant de poster un nouvel avis.`;
       return;
     }
   }
 
-  // Publie l'avis avec les infos utilisateur complètes
+  const user = auth.currentUser;
   await db.collection("avis").add({
     texte,
     note,
     likes: 0,
     date: now,
-    userId: utilisateur.uid,
-    userName: utilisateur.displayName || utilisateur.email,
-    userEmail: utilisateur.email,
-    userPhoto: utilisateur.photoURL || ""
+    userId: user.uid,
+    userName: user.displayName || user.email,
+    userEmail: user.email,
+    userPhoto: user.photoURL || ""
   });
 
   document.getElementById("avis-text").value = "";
   msg.innerText = "✅ Avis posté avec succès.";
 }
 
-// Affichage des avis
+// Afficher les avis
 function afficherAvis() {
   const container = document.getElementById("liste-avis");
 
@@ -130,12 +130,15 @@ function afficherAvis() {
       const dateStr = date.toLocaleDateString();
       const heureStr = date.toLocaleTimeString();
 
+      const nom = avis.userName || avis.userEmail || "Utilisateur inconnu";
+      const photo = avis.userPhoto || "";
+
       const div = document.createElement("div");
       div.className = "avis";
       div.innerHTML = `
         <div class="avis-header">
-          ${avis.userPhoto ? `<img src="${avis.userPhoto}" alt="photo">` : ""}
-          <strong>${avis.userName || avis.userEmail}</strong>
+          ${photo ? `<img src="${photo}" alt="profil">` : ""}
+          <strong>${nom}</strong>
         </div>
         <div>${"⭐".repeat(avis.note)}</div>
         <p>${avis.texte}</p>
@@ -147,7 +150,7 @@ function afficherAvis() {
   });
 }
 
-// Likes
+// Like
 async function likerAvis(id) {
   if (!utilisateur) {
     alert("Veuillez vous connecter pour liker un avis.");
@@ -176,5 +179,5 @@ window.effacer = effacer;
 window.afficherAvis = afficherAvis;
 window.likerAvis = likerAvis;
 
-// Affiche les avis dès que la page est chargée
+// Démarrer
 window.onload = afficherAvis;
