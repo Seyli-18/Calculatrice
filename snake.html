@@ -13,12 +13,23 @@
       <p id="vies">Vie : 1</p>
       <p id="best">Best score : 0</p>
     </div>
+
     <div class="game-zone">
       <canvas id="snake" width="400" height="400"></canvas>
+
       <div id="game-over">
         <h2>💀 Game Over !</h2>
         <p id="final-score">Score : 0</p>
         <button onclick="window.location.reload()">🔁 Rejouer</button>
+      </div>
+
+      <div class="touch-controls">
+        <button onclick="mobileMove('UP')">⬆️</button>
+        <div>
+          <button onclick="mobileMove('LEFT')">⬅️</button>
+          <button onclick="mobileMove('DOWN')">⬇️</button>
+          <button onclick="mobileMove('RIGHT')">➡️</button>
+        </div>
       </div>
     </div>
   </div>
@@ -31,3 +42,4 @@
   <script src="snake.js"></script>
 </body>
 </html>
+
