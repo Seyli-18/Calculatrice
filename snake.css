@@ -59,7 +59,6 @@ canvas {
   text-align: center;
 }
 
-/* ✅ Contrôles tactiles fixés en bas à droite */
 .touch-controls {
   position: fixed;
   right: 20px;
@@ -79,4 +78,9 @@ canvas {
   border: none;
   border-radius: 8px;
   cursor: pointer;
+}
+
+#pause-btn {
+  margin-top: 10px;
+  background-color: #9b59b6;
 }
