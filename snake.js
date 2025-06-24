@@ -57,6 +57,12 @@ window.onload = function () {
     document.getElementById("best").innerText = `Best score : ${bestScore}`;
   }
 
+  // ✅ Bloque défilement de page au clavier
+  window.addEventListener("keydown", function (e) {
+    const keys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
+    if (keys.includes(e.key)) e.preventDefault();
+  }, { passive: false });
+
   document.addEventListener("keydown", (e) => {
     if (!canChangeDirection || isPaused) return;
     canChangeDirection = false;
@@ -84,7 +90,6 @@ window.onload = function () {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // ✅ Tous les blocs du corps en VERT
     ctx.fillStyle = "green";
     for (let part of snake) {
       ctx.fillRect(part.x, part.y, box, box);
@@ -130,6 +135,7 @@ window.onload = function () {
           isTeleporting = false;
           game = setInterval(draw, 150);
         }, 300);
+
         return;
       } else {
         return endGame();
