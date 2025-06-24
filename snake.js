@@ -1,3 +1,7 @@
+
+let isTeleporting = false;
+let skipNextFrame = false;
+
 const firebaseConfig = {
   apiKey: "AIzaSyCWSSYXHJNXcbFaJn6AapsEARKCTjhzqXs",
   authDomain: "monsitecalculatrice.firebaseapp.com",
@@ -95,6 +99,11 @@ window.onload = function () {
 
   function draw() {
     if (!gameRunning || isPaused || isTeleporting) return;
+
+    if (skipNextFrame) {
+  skipNextFrame = false;
+  return;
+}
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
