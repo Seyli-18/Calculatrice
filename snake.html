@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <title>Snake Game Deluxe</title>
   <link rel="stylesheet" href="snake.css" />
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
   <div class="container">
@@ -35,11 +39,10 @@
   </div>
 
   <div id="top-scores">
-    <h2>🏆 Top 10</h2>
+    <h2>🏆 Top 10 (global)</h2>
     <ol id="classement"></ol>
   </div>
 
   <script src="snake.js"></script>
 </body>
 </html>
-
