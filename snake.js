@@ -8,6 +8,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 let game, isPaused = false;
+let isTeleporting = false;
 
 window.onload = function () {
   const canvas = document.getElementById("snake");
@@ -102,17 +103,19 @@ window.onload = function () {
     if (direction === "UP") head.y -= box;
     if (direction === "DOWN") head.y += box;
 
-    // collision
+    // ✅ collision SANS game over si on vient d'être déplacé
     if (
-      head.x < 0 || head.x >= canvas.width ||
-      head.y < 0 || head.y >= canvas.height ||
-      snake.slice(1).some(p => p.x === head.x && p.y === head.y)
+      !isTeleporting && (
+        head.x < 0 || head.x >= canvas.width ||
+        head.y < 0 || head.y >= canvas.height ||
+        snake.slice(1).some(p => p.x === head.x && p.y === head.y)
+      )
     ) {
       if (vies > 1) {
         vies--;
         direction = null;
 
-        // Ne pas perdre la taille → on déplace le corps au centre
+        // Repositionner au centre sans perdre la taille
         const dx = 9 * box - snake[0].x;
         const dy = 10 * box - snake[0].y;
         snake = snake.map(part => ({
@@ -123,6 +126,13 @@ window.onload = function () {
         food = randomPosition();
         bonus = randomBonus();
         updateScoreDisplay();
+
+        // ✅ désactive collision pendant 1 tick
+        isTeleporting = true;
+        setTimeout(() => {
+          isTeleporting = false;
+        }, 150);
+
         return;
       } else {
         return endGame();
