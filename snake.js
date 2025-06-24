@@ -1,20 +1,25 @@
-window.onload = function () {
+const firebaseConfig = {
+  apiKey: "AIzaSyCWSSYXHJNXcbFaJn6AapsEARKCTjhzqXs",
+  authDomain: "monsitecalculatrice.firebaseapp.com",
+  projectId: "monsitecalculatrice"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+window.onload = async function () {
   const canvas = document.getElementById("snake");
   const ctx = canvas.getContext("2d");
   const box = 20;
 
-  let pseudo = localStorage.getItem("pseudoSnake");
-  if (!pseudo) {
-    do {
-      pseudo = prompt("Entrez votre pseudo :")?.trim();
-    } while (!pseudo);
-    localStorage.setItem("pseudoSnake", pseudo);
-  }
-
+  let pseudo;
+  do {
+    pseudo = prompt("Entrez votre pseudo :")?.trim();
+  } while (!pseudo);
   document.getElementById("pseudo").innerText = pseudo;
 
   let score = 0;
-  let bestScore = parseInt(localStorage.getItem("bestScore_" + pseudo)) || 0;
+  let bestScore = 0;
   let vies = 1;
   let shield = false;
   let direction;
@@ -22,8 +27,6 @@ window.onload = function () {
   let snake = [{ x: 9 * box, y: 10 * box }];
   let food = randomPosition();
   let bonus = randomBonus();
-
-  updateScoreDisplay();
 
   function randomPosition() {
     return {
@@ -48,10 +51,11 @@ window.onload = function () {
   }
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
-    else if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
-    else if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
-    else if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+    const key = e.key;
+    if (key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+    else if (key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+    else if (key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+    else if (key === "ArrowDown" && direction !== "UP") direction = "DOWN";
   });
 
   window.mobileMove = function (dir) {
@@ -122,34 +126,38 @@ window.onload = function () {
     updateScoreDisplay();
   }
 
-  function endGame() {
+  async function endGame() {
     clearInterval(game);
     gameRunning = false;
     document.getElementById("final-score").innerText = `Score : ${score}`;
     document.getElementById("game-over").style.display = "block";
 
-    if (score > bestScore) {
-      localStorage.setItem("bestScore_" + pseudo, score);
-    }
+    await db.collection("snake_scores").add({
+      pseudo,
+      score,
+      date: new Date()
+    });
 
-    const top = JSON.parse(localStorage.getItem("snakeTop10") || "[]");
-    top.push({ pseudo, score });
-    const top10 = [...top].sort((a, b) => b.score - a.score).slice(0, 10);
-    localStorage.setItem("snakeTop10", JSON.stringify(top10));
-    showTopScores(top10);
+    afficherTopScores();
   }
 
-  function showTopScores(top) {
+  async function afficherTopScores() {
     const list = document.getElementById("classement");
     list.innerHTML = "";
-    top.forEach((entry, i) => {
+
+    const snapshot = await db.collection("snake_scores")
+      .orderBy("score", "desc")
+      .limit(10)
+      .get();
+
+    snapshot.forEach((doc, i) => {
+      const data = doc.data();
       const li = document.createElement("li");
-      li.textContent = `#${i + 1} - ${entry.pseudo} : ${entry.score}`;
+      li.textContent = `#${i + 1} - ${data.pseudo} : ${data.score}`;
       list.appendChild(li);
     });
   }
 
-  const storedTop = JSON.parse(localStorage.getItem("snakeTop10") || "[]");
-  showTopScores(storedTop);
+  afficherTopScores();
   const game = setInterval(draw, 150);
 };
