@@ -40,7 +40,7 @@ function effacer() {
   document.getElementById("affichage").value = "";
 }
 
-// Connexion Google
+// Auth Google
 document.getElementById("login-btn").addEventListener("click", async () => {
   const provider = new firebase.auth.GoogleAuthProvider();
   try {
@@ -63,9 +63,9 @@ auth.onAuthStateChanged((user) => {
     : "";
 });
 
-// Envoyer un avis
 document.getElementById("envoyer-btn").addEventListener("click", envoyerAvis);
 
+// Poster un avis
 async function envoyerAvis() {
   const msg = document.getElementById("attente-msg");
   msg.innerText = "";
@@ -75,29 +75,34 @@ async function envoyerAvis() {
     return;
   }
 
-  const texte = document.getElementById("avis-text").value;
+  const texte = document.getElementById("avis-text").value.trim();
   const note = parseInt(document.getElementById("etoiles").value);
+
   if (!texte || texte.length > 350) {
-    alert("Votre avis est invalide.");
+    alert("Votre avis doit faire entre 1 et 350 caractères.");
     return;
   }
 
   const now = new Date();
+
+  // Vérifie le délai de 1h depuis le dernier avis
   const ref = db.collection("avis")
     .where("userId", "==", utilisateur.uid)
     .orderBy("date", "desc")
     .limit(1);
+
   const snap = await ref.get();
   if (!snap.empty) {
     const dernier = snap.docs[0].data().date.toDate();
     const diffMs = now - dernier;
     if (diffMs < 3600000) {
-      const minutes = Math.ceil((3600000 - diffMs) / 60000);
-      msg.innerText = `⏳ Veuillez attendre ${minutes} minute(s) avant de poster un nouvel avis.`;
+      const minutesRestantes = Math.ceil((3600000 - diffMs) / 60000);
+      msg.innerText = `⏳ Vous devez attendre ${minutesRestantes} minute(s) avant de pouvoir poster un nouvel avis.`;
       return;
     }
   }
 
+  // Publie l'avis avec les infos utilisateur complètes
   await db.collection("avis").add({
     texte,
     note,
@@ -105,11 +110,12 @@ async function envoyerAvis() {
     date: now,
     userId: utilisateur.uid,
     userName: utilisateur.displayName || utilisateur.email,
+    userEmail: utilisateur.email,
     userPhoto: utilisateur.photoURL || ""
   });
 
   document.getElementById("avis-text").value = "";
-  msg.innerText = "✅ Merci pour votre avis !";
+  msg.innerText = "✅ Avis posté avec succès.";
 }
 
 // Affichage des avis
@@ -129,7 +135,7 @@ function afficherAvis() {
       div.innerHTML = `
         <div class="avis-header">
           ${avis.userPhoto ? `<img src="${avis.userPhoto}" alt="photo">` : ""}
-          <strong>${avis.userName || "Utilisateur"}</strong>
+          <strong>${avis.userName || avis.userEmail}</strong>
         </div>
         <div>${"⭐".repeat(avis.note)}</div>
         <p>${avis.texte}</p>
@@ -141,7 +147,7 @@ function afficherAvis() {
   });
 }
 
-// Like
+// Likes
 async function likerAvis(id) {
   if (!utilisateur) {
     alert("Veuillez vous connecter pour liker un avis.");
@@ -162,6 +168,7 @@ async function likerAvis(id) {
   });
 }
 
+// Rendre global
 window.ajouterChiffre = ajouterChiffre;
 window.ajouterOperateur = ajouterOperateur;
 window.calculer = calculer;
@@ -169,4 +176,5 @@ window.effacer = effacer;
 window.afficherAvis = afficherAvis;
 window.likerAvis = likerAvis;
 
+// Affiche les avis dès que la page est chargée
 window.onload = afficherAvis;
