@@ -43,7 +43,7 @@
 
   <h2>Laissez un avis</h2>
   <div>
-    <textarea id="avis-text" maxlength="250" placeholder="Votre avis (max 250 caractères)..."></textarea><br />
+    <textarea id="avis-text" maxlength="350" placeholder="Votre avis (max 350 caractères)..."></textarea><br />
     <label>Note :
       <select id="etoiles">
         <option value="1">⭐</option>
@@ -54,6 +54,7 @@
       </select>
     </label><br />
     <button id="envoyer-btn">Envoyer l'avis</button>
+    <p id="attente-msg" style="color: orange; margin-top: 10px;"></p>
   </div>
 
   <div id="liste-avis"></div>
