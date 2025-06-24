@@ -28,6 +28,21 @@ h1 {
   border: none;
 }
 
+.avis-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.avis-header img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+
 .clavier {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
