@@ -111,7 +111,14 @@ window.onload = function () {
       if (vies > 1) {
         vies--;
         direction = null;
-        snake = [{ x: 9 * box, y: 10 * box }];
+        let offsetX = 9 * box - snake[0].x;
+        let offsetY = 10 * box - snake[0].y;
+        snake = snake.map(part => ({
+        x: part.x + offsetX,
+        y: part.y + offsetY
+        }));
+        direction = null;
+
         food = randomPosition();
         bonus = randomBonus();
         updateScoreDisplay();
