@@ -1,7 +1,3 @@
-
-let isTeleporting = false;
-let skipNextFrame = false;
-
 const firebaseConfig = {
   apiKey: "AIzaSyCWSSYXHJNXcbFaJn6AapsEARKCTjhzqXs",
   authDomain: "monsitecalculatrice.firebaseapp.com",
@@ -11,10 +7,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-let game, isPaused = false, isTeleporting = false;
+let game, isPaused = false;
+let isTeleporting = false;
+let skipNextFrame = false;
 
-// ✅ Bloque le scroll quand on utilise les flèches pour jouer
-window.addEventListener("keydown", function(e) {
+window.addEventListener("keydown", function (e) {
   const keys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
   if (keys.includes(e.key)) {
     e.preventDefault();
@@ -69,12 +66,6 @@ window.onload = function () {
     document.getElementById("best").innerText = `Best score : ${bestScore}`;
   }
 
-  // ✅ Bloque défilement de page au clavier
-  window.addEventListener("keydown", function (e) {
-    const keys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
-    if (keys.includes(e.key)) e.preventDefault();
-  }, { passive: false });
-
   document.addEventListener("keydown", (e) => {
     if (!canChangeDirection || isPaused) return;
     canChangeDirection = false;
@@ -98,12 +89,12 @@ window.onload = function () {
   };
 
   function draw() {
-    if (!gameRunning || isPaused || isTeleporting) return;
+    if (!gameRunning || isPaused) return;
 
     if (skipNextFrame) {
-  skipNextFrame = false;
-  return;
-}
+      skipNextFrame = false;
+      return;
+    }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -148,11 +139,12 @@ window.onload = function () {
         bonus = randomBonus();
         updateScoreDisplay();
 
+        skipNextFrame = true;
+
         setTimeout(() => {
           isTeleporting = false;
           game = setInterval(draw, 150);
         }, 300);
-
         return;
       } else {
         return endGame();
