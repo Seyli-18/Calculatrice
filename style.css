@@ -126,3 +126,7 @@ select {
   height: 32px;
   border-radius: 50%;
 }
+
+#affichage {
+  color: white;
+}
