@@ -10,9 +10,12 @@ let shield = false;
 let snake = [{ x: 9 * box, y: 10 * box }];
 let food = randomPosition();
 let bonus = randomBonus();
+let gameRunning = true;
 
-document.getElementById("pseudoZone").innerText = `Joueur : ${pseudo}`;
-document.getElementById("score").innerText = `Score : ${score} | Vie : ${vies}`;
+document.getElementById("pseudo").innerText = pseudo;
+document.getElementById("score").innerText = `Score : ${score}`;
+document.getElementById("vies").innerText = `Vie : ${vies}`;
+document.getElementById("best").innerText = `Best score : ${bestScore}`;
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
@@ -38,19 +41,21 @@ function randomBonus() {
 }
 
 function draw() {
+  if (!gameRunning) return;
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Draw snake
+  // Snake
   for (let i = 0; i < snake.length; i++) {
     ctx.fillStyle = i === 0 ? (shield ? "blue" : "lime") : "white";
     ctx.fillRect(snake[i].x, snake[i].y, box, box);
   }
 
-  // Draw food
+  // Food
   ctx.fillStyle = "red";
   ctx.fillRect(food.x, food.y, box, box);
 
-  // Draw bonus
+  // Bonus
   if (bonus.type === "life") ctx.fillStyle = "pink";
   else if (bonus.type === "shield") ctx.fillStyle = "cyan";
   else ctx.fillStyle = "violet";
@@ -73,12 +78,11 @@ function draw() {
     } else if (vies > 1) {
       vies--;
     } else {
-      endGame();
-      return;
+      return endGame();
     }
   }
 
-  // Mange food
+  // Eat food
   if (head.x === food.x && head.y === food.y) {
     score++;
     food = randomPosition();
@@ -86,7 +90,7 @@ function draw() {
     snake.pop();
   }
 
-  // Mange bonus
+  // Eat bonus
   if (head.x === bonus.x && head.y === bonus.y) {
     if (bonus.type === "life") vies++;
     else if (bonus.type === "shield") shield = true;
@@ -97,17 +101,23 @@ function draw() {
   }
 
   snake.unshift(head);
-  document.getElementById("score").innerText = `Score : ${score} | Vie : ${vies}`;
+
+  // Update interface
+  document.getElementById("score").innerText = `Score : ${score}`;
+  document.getElementById("vies").innerText = `Vie : ${vies}`;
 }
 
 function endGame() {
   clearInterval(game);
-  alert(`💀 Game Over ! Score : ${score}`);
+  gameRunning = false;
+  document.getElementById("final-score").innerText = `Score : ${score}`;
+  document.getElementById("game-over").style.display = "block";
 
   if (score > bestScore) {
     localStorage.setItem("bestScore_" + pseudo, score);
   }
 
+  // Classement
   const top = JSON.parse(localStorage.getItem("snakeTop10") || "[]");
   top.push({ pseudo, score });
   top.sort((a, b) => b.score - a.score);
