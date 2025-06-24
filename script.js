@@ -1,12 +1,8 @@
-// Initialisation Firebase
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCWSSYXHJNXcbFaJn6AapsEARKCTjhzqXs",
   authDomain: "monsitecalculatrice.firebaseapp.com",
-  projectId: "monsitecalculatrice",
-  storageBucket: "monsitecalculatrice.appspot.com",
-  messagingSenderId: "287241978051",
-  appId: "1:287241978051:web:d6fa38c47a6def42c6e276",
-  measurementId: "G-3RY758BE8D"
+  projectId: "monsitecalculatrice"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -44,13 +40,12 @@ function effacer() {
   document.getElementById("affichage").value = "";
 }
 
-// Rendre les fonctions accessibles dans HTML
 window.ajouterChiffre = ajouterChiffre;
 window.ajouterOperateur = ajouterOperateur;
 window.calculer = calculer;
 window.effacer = effacer;
 
-// Connexion Google
+// Authentification
 document.getElementById("login-btn").addEventListener("click", async () => {
   const provider = new firebase.auth.GoogleAuthProvider();
   try {
@@ -64,18 +59,20 @@ document.getElementById("logout-btn").addEventListener("click", async () => {
   await auth.signOut();
 });
 
-// Suivi de connexion
 auth.onAuthStateChanged((user) => {
   utilisateur = user;
   document.getElementById("login-btn").style.display = user ? "none" : "inline-block";
   document.getElementById("logout-btn").style.display = user ? "inline-block" : "none";
-  document.getElementById("utilisateur-connecte").innerText = user ? `Connecté en tant que : ${user.email}` : "";
+  document.getElementById("utilisateur-connecte").innerText = user ? `Connecté en tant que : ${user.displayName || user.email}` : "";
 });
 
 document.getElementById("envoyer-btn").addEventListener("click", envoyerAvis);
 
-// Envoyer avis
+// Poster un avis
 async function envoyerAvis() {
+  const msg = document.getElementById("attente-msg");
+  msg.innerText = "";
+
   if (!utilisateur) {
     alert("Veuillez vous connecter pour publier un avis.");
     return;
@@ -84,40 +81,64 @@ async function envoyerAvis() {
   const texte = document.getElementById("avis-text").value;
   const note = parseInt(document.getElementById("etoiles").value);
 
-  if (!texte || texte.length > 250) {
-    alert("Votre avis est invalide.");
+  if (!texte || texte.length > 350) {
+    alert("Votre avis doit contenir entre 1 et 350 caractères.");
     return;
+  }
+
+  // Vérification du délai de 1h
+  const now = new Date();
+  const ref = db.collection("avis")
+    .where("userId", "==", utilisateur.uid)
+    .orderBy("date", "desc")
+    .limit(1);
+
+  const snap = await ref.get();
+  if (!snap.empty) {
+    const dernier = snap.docs[0].data().date.toDate();
+    const diffMs = now - dernier;
+    if (diffMs < 3600000) {
+      const reste = Math.ceil((3600000 - diffMs) / 60000);
+      msg.innerText = `⏳ Veuillez attendre ${reste} minute(s) avant de reposter un avis.`;
+      return;
+    }
   }
 
   await db.collection("avis").add({
     texte,
     note,
     likes: 0,
-    date: new Date(),
-    userId: utilisateur.uid
+    date: now,
+    userId: utilisateur.uid,
+    userName: utilisateur.displayName || utilisateur.email,
+    userPhoto: utilisateur.photoURL || ""
   });
 
   document.getElementById("avis-text").value = "";
+  msg.innerText = "✅ Merci pour votre avis !";
 }
 
-// Affichage des avis
+// Afficher les avis
 function afficherAvis() {
   const container = document.getElementById("liste-avis");
 
-  db.collection("avis").orderBy("date", "desc").onSnapshot((snapshot) => {
+  db.collection("avis").orderBy("date", "desc").onSnapshot(snapshot => {
     container.innerHTML = "<h2>📣 Avis des utilisateurs</h2>";
-    snapshot.forEach((docSnap) => {
+    snapshot.forEach(docSnap => {
       const avis = docSnap.data();
       const date = avis.date.toDate();
-      const dateStr = date.toLocaleDateString();
-      const heureStr = date.toLocaleTimeString();
+      const jours = Math.floor((Date.now() - date) / 86400000);
 
       const div = document.createElement("div");
       div.className = "avis";
       div.innerHTML = `
-        <strong>${"⭐".repeat(avis.note)}</strong><br>
+        <div class="avis-header">
+          ${avis.userPhoto ? `<img src="${avis.userPhoto}" alt="pp" />` : ""}
+          <strong>${avis.userName}</strong>
+        </div>
+        <div>${"⭐".repeat(avis.note)}</div>
         <p>${avis.texte}</p>
-        <p><small>Posté le ${dateStr} à ${heureStr}</small></p>
+        <small>Posté il y a ${jours} jour(s)</small><br>
         <button class="like-btn" onclick="likerAvis('${docSnap.id}')">❤️ ${avis.likes || 0}</button>
       `;
       container.appendChild(div);
@@ -125,7 +146,6 @@ function afficherAvis() {
   });
 }
 
-// Liker un avis
 async function likerAvis(id) {
   if (!utilisateur) {
     alert("Veuillez vous connecter pour liker un avis.");
@@ -141,11 +161,11 @@ async function likerAvis(id) {
   }
 
   await likeRef.set({ liked: true });
-  const avisRef = db.collection("avis").doc(id);
-  await avisRef.update({ likes: firebase.firestore.FieldValue.increment(1) });
+  await db.collection("avis").doc(id).update({
+    likes: firebase.firestore.FieldValue.increment(1)
+  });
 }
 
 window.afficherAvis = afficherAvis;
 window.likerAvis = likerAvis;
-
 window.onload = afficherAvis;
