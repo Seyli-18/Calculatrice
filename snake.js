@@ -1,5 +1,3 @@
-let game = setInterval(draw, 150);
-
 const firebaseConfig = {
   apiKey: "AIzaSyCWSSYXHJNXcbFaJn6AapsEARKCTjhzqXs",
   authDomain: "monsitecalculatrice.firebaseapp.com",
@@ -9,7 +7,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-window.onload = async function () {
+window.onload = function () {
   const canvas = document.getElementById("snake");
   const ctx = canvas.getContext("2d");
   const box = 20;
@@ -24,11 +22,19 @@ window.onload = async function () {
   let bestScore = 0;
   let vies = 1;
   let shield = false;
-  let direction;
+  let direction = null;
   let gameRunning = true;
+  let canChangeDirection = true;
   let snake = [{ x: 9 * box, y: 10 * box }];
   let food = randomPosition();
   let bonus = randomBonus();
+  let game;
+
+  startGame();
+
+  function startGame() {
+    game = setInterval(draw, 150);
+  }
 
   function randomPosition() {
     return {
@@ -53,14 +59,17 @@ window.onload = async function () {
   }
 
   document.addEventListener("keydown", (e) => {
-    const key = e.key;
-    if (key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
-    else if (key === "ArrowUp" && direction !== "DOWN") direction = "UP";
-    else if (key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
-    else if (key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+    if (!canChangeDirection) return;
+    canChangeDirection = false;
+    if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+    else if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+    else if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+    else if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
   });
 
   window.mobileMove = function (dir) {
+    if (!canChangeDirection) return;
+    canChangeDirection = false;
     if (
       (dir === "LEFT" && direction !== "RIGHT") ||
       (dir === "RIGHT" && direction !== "LEFT") ||
@@ -126,6 +135,7 @@ window.onload = async function () {
 
     snake.unshift(head);
     updateScoreDisplay();
+    canChangeDirection = true;
   }
 
   async function endGame() {
@@ -160,22 +170,20 @@ window.onload = async function () {
     });
   }
 
+  document.getElementById("rejouer-btn").addEventListener("click", () => {
+    document.getElementById("game-over").style.display = "none";
+    snake = [{ x: 9 * box, y: 10 * box }];
+    food = randomPosition();
+    bonus = randomBonus();
+    score = 0;
+    vies = 1;
+    shield = false;
+    direction = null;
+    gameRunning = true;
+    updateScoreDisplay();
+    afficherTopScores();
+    game = setInterval(draw, 150);
+  });
+
   afficherTopScores();
-  const game = setInterval(draw, 150);
 };
-
-document.getElementById("rejouer-btn").addEventListener("click", () => {
-  document.getElementById("game-over").style.display = "none";
-  snake = [{ x: 9 * box, y: 10 * box }];
-  food = randomPosition();
-  bonus = randomBonus();
-  score = 0;
-  vies = 1;
-  shield = false;
-  direction = null;
-  gameRunning = true;
-  updateScoreDisplay();
-  afficherTopScores();
-  game = setInterval(draw, 150);
-});
-
