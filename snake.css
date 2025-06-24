@@ -78,3 +78,23 @@ canvas {
   border: none;
   border-radius: 5px;
 }
+
+.touch-controls {
+  position: absolute;
+  right: -130px;
+  top: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.touch-controls button {
+  font-size: 28px;
+  padding: 18px;
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
