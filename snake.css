@@ -84,3 +84,36 @@ canvas {
   margin-top: 10px;
   background-color: #9b59b6;
 }
+
+/* ✅ Responsive mobile */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .sidebar {
+    width: 90%;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .touch-controls {
+    right: 10px;
+    bottom: 100px;
+    transform: scale(1.2);
+  }
+
+  canvas {
+    width: 90vw;
+    height: 90vw;
+    max-width: 400px;
+    max-height: 400px;
+  }
+
+  #top-scores {
+    padding: 0 15px;
+    font-size: 14px;
+  }
+}
+
