@@ -122,7 +122,7 @@ async function envoyerAvis() {
 function afficherAvis() {
   const container = document.getElementById("liste-avis");
 
-  db.collection("avis").orderBy("date", "desc").onSnapshot((snapshot) => {
+  db.collection("avis").orderBy("likes", "desc").onSnapshot((snapshot) => {
     container.innerHTML = "<h2>📣 Avis des utilisateurs</h2>";
     snapshot.forEach((docSnap) => {
       const avis = docSnap.data();
