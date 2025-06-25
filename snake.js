@@ -96,16 +96,21 @@ window.onload = function () {
   });
 
   window.mobileMove = function (dir) {
-    if (!canChangeDirection || isPaused) return;
-    if (
-      (dir === "LEFT" && direction !== "RIGHT") ||
-      (dir === "RIGHT" && direction !== "LEFT") ||
-      (dir === "UP" && direction !== "DOWN") ||
-      (dir === "DOWN" && direction !== "UP")
-    ) {
-      direction = dir;
-    }
+  if (isPaused) return;
+
+  const opposites = {
+    LEFT: "RIGHT",
+    RIGHT: "LEFT",
+    UP: "DOWN",
+    DOWN: "UP"
   };
+
+  if (direction !== opposites[dir]) {
+    direction = dir;
+    canChangeDirection = false; // bloque le double appui avant le tour suivant
+  }
+};
+
 
   function draw() {
     if (!gameRunning || isPaused) return;
@@ -166,6 +171,7 @@ window.onload = function () {
     }
 
     snake.unshift(head);
+    canChangeDirection = true;
     updateScoreDisplay();
     canChangeDirection = true;
   }
