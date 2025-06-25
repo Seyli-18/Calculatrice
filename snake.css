@@ -150,6 +150,38 @@ canvas {
     padding: 20px;
   }
 
+  #avis-section {
+  background: rgba(255, 255, 255, 0.85);
+  padding: 20px;
+  margin-top: 30px;
+  border-radius: 10px;
+}
+
+#avis-form {
+  margin-bottom: 20px;
+}
+
+#avis-form textarea {
+  width: 100%;
+  height: 80px;
+  resize: none;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+#avis-form select, #avis-form button {
+  padding: 8px;
+  margin-right: 10px;
+}
+
+.avis {
+  background: #eee;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+
   .touch-controls .horizontal {
     gap: 25px;
   }
