@@ -43,11 +43,16 @@ window.onload = function () {
   let bonus = randomBonus();
 
   function randomPosition() {
-    return {
+  let pos;
+  do {
+    pos = {
       x: Math.floor(Math.random() * 20) * box,
       y: Math.floor(Math.random() * 20) * box
     };
-  }
+  } while (snake.some(part => part.x === pos.x && part.y === pos.y));
+  return pos;
+}
+
 
   function randomBonus() {
     const types = ["life", "grow", "double"];
