@@ -7,11 +7,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-let game, isPaused = false, isTeleporting = false;
+let game, isPaused = false;
 
-// ✅ Bloque le scroll de page avec les flèches, même si la page est focus
 window.addEventListener("keydown", function (e) {
-  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+  const keys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
+  if (keys.includes(e.key)) {
     e.preventDefault();
   }
 }, { passive: false });
@@ -34,7 +34,6 @@ window.onload = function () {
 
   let score = 0;
   let bestScore = 0;
-  let vies = 1;
   let direction = null;
   let canChangeDirection = true;
   let gameRunning = true;
@@ -60,15 +59,8 @@ window.onload = function () {
 
   function updateScoreDisplay() {
     document.getElementById("score").innerText = `Score : ${score}`;
-    document.getElementById("vies").innerText = `Vie : ${vies}`;
     document.getElementById("best").innerText = `Best score : ${bestScore}`;
   }
-
-  // ✅ Bloque défilement de page au clavier
-  window.addEventListener("keydown", function (e) {
-    const keys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
-    if (keys.includes(e.key)) e.preventDefault();
-  }, { passive: false });
 
   document.addEventListener("keydown", (e) => {
     if (!canChangeDirection || isPaused) return;
@@ -93,7 +85,7 @@ window.onload = function () {
   };
 
   function draw() {
-    if (!gameRunning || isPaused || isTeleporting) return;
+    if (!gameRunning || isPaused) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -120,37 +112,12 @@ window.onload = function () {
       head.y < 0 || head.y >= canvas.height ||
       snake.slice(1).some(p => p.x === head.x && p.y === head.y);
 
-    if (!isTeleporting && hasCollision) {
-      if (vies > 1) {
-        vies--;
-        direction = null;
-        isTeleporting = true;
-        clearInterval(game);
-
-        const dx = 9 * box - snake[0].x;
-        const dy = 10 * box - snake[0].y;
-        snake = snake.map(part => ({
-          x: part.x + dx,
-          y: part.y + dy
-        }));
-
-        food = randomPosition();
-        bonus = randomBonus();
-        updateScoreDisplay();
-
-        setTimeout(() => {
-          isTeleporting = false;
-          game = setInterval(draw, 150);
-        }, 300);
-
-        return;
-      } else {
-        return endGame();
-      }
+    if (hasCollision) {
+      return endGame();
     }
 
     if (head.x === food.x && head.y === food.y) {
-      score++;
+      score += 1;
       food = randomPosition();
     } else {
       snake.pop();
@@ -158,10 +125,12 @@ window.onload = function () {
 
     if (head.x === bonus.x && head.y === bonus.y) {
       if (bonus.type === "life") {
-        vies++;
+        score += 3;
       } else if (bonus.type === "grow") {
+        score += 2;
         snake.push({ ...snake[snake.length - 1] });
       } else if (bonus.type === "double") {
+        score += 2;
         for (let i = 0; i < 2; i++) {
           snake.push({ ...snake[snake.length - 1] });
         }
@@ -212,7 +181,6 @@ window.onload = function () {
     food = randomPosition();
     bonus = randomBonus();
     score = 0;
-    vies = 1;
     direction = null;
     gameRunning = true;
     updateScoreDisplay();
