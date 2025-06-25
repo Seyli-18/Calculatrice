@@ -9,14 +9,6 @@ const db = firebase.firestore();
 
 let game, isPaused = false, isTeleporting = false;
 
-// ✅ Bloque le scroll quand on utilise les flèches pour jouer
-window.addEventListener("keydown", function(e) {
-  const keys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
-  if (keys.includes(e.key)) {
-    e.preventDefault();
-  }
-}, { passive: false });
-
 window.onload = function () {
   const canvas = document.getElementById("snake");
   const ctx = canvas.getContext("2d");
@@ -224,5 +216,9 @@ window.onload = function () {
 
   document.getElementById("pause-btn").addEventListener("click", () => {
     isPaused = !isPaused;
-    document.getElementById("pause-btn").innerText = isPaused ? ▶️ Reprendre" : "⏸ Pause";
+    document.getElementById("pause-btn").innerText = isPaused ? "▶️ Reprendre" : "⏸ Pause";
   });
+
+  afficherTopScores();
+  game = setInterval(draw, 150);
+};
