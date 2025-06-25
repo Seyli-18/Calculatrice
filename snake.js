@@ -14,25 +14,30 @@ window.addEventListener("keydown", function (e) {
   if (keys.includes(e.key)) e.preventDefault();
 }, { passive: false });
 
-window.onload = function () {
+window.onload = async function () {
   const canvas = document.getElementById("snake");
   const ctx = canvas.getContext("2d");
   const box = 20;
 
-  const audio = new Audio("https://cdn.pixabay.com/download/audio/2023/06/10/audio_0ef8e7bfb7.mp3?filename=arcade-loop-146245.mp3");
+  const audio = new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
   audio.loop = true;
   audio.volume = 0.2;
   audio.play();
+
+  // Masquer les boutons de contrôle sur PC
+  if (window.innerWidth > 768) {
+    const controls = document.querySelector(".touch-controls");
+    if (controls) controls.style.display = "none";
+  }
 
   let pseudo;
   do {
     pseudo = prompt("Entrez votre pseudo :")?.trim();
   } while (!pseudo);
   document.getElementById("pseudo").innerText = pseudo;
-  getBestScoreForPseudo(pseudo); // ✅ Best score via Firebase
 
+  let bestScore = await getBestScoreForPseudo(pseudo); // ⚠️ Récupération ici
   let score = 0;
-  let bestScore = 0;
   let direction = null;
   let canChangeDirection = true;
   let gameRunning = true;
@@ -176,8 +181,13 @@ window.onload = function () {
       date: new Date()
     });
 
+    // Met à jour le best score si le nouveau est meilleur
+    if (score > bestScore) {
+      bestScore = score;
+      document.getElementById("best").innerText = `Best score : ${bestScore}`;
+    }
+
     afficherTopScores();
-    getBestScoreForPseudo(pseudo); // Mise à jour du best après fin de partie
   }
 
   async function afficherTopScores() {
@@ -219,7 +229,6 @@ window.onload = function () {
     gameRunning = true;
     updateScoreDisplay();
     afficherTopScores();
-    getBestScoreForPseudo(pseudo);
     clearInterval(game);
     game = setInterval(draw, 150);
   });
@@ -233,7 +242,7 @@ window.onload = function () {
   game = setInterval(draw, 150);
 };
 
-// ✅ Fonction pour récupérer le best score Firebase (avec index)
+// 🔄 Récupère le best score depuis Firebase via index (pseudo + score)
 async function getBestScoreForPseudo(pseudo) {
   try {
     const snapshot = await db.collection("snake_scores")
@@ -244,13 +253,15 @@ async function getBestScoreForPseudo(pseudo) {
 
     if (!snapshot.empty) {
       const data = snapshot.docs[0].data();
-      bestScore = data.score;
-      document.getElementById("best").innerText = `Best score : ${bestScore}`;
+      document.getElementById("best").innerText = `Best score : ${data.score}`;
+      return data.score;
     } else {
-      bestScore = 0;
       document.getElementById("best").innerText = `Best score : 0`;
+      return 0;
     }
   } catch (error) {
-    console.error("Erreur lors de la récupération du best score :", error.message);
+    console.error("Erreur récupération best score:", error.message);
+    document.getElementById("best").innerText = `Best score : 0`;
+    return 0;
   }
 }
