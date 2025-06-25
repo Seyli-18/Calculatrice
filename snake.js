@@ -7,13 +7,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-let game, isPaused = false;
+let game, isPaused = false, gameRunning = true;
 
 window.addEventListener("keydown", function (e) {
-  const keysToPrevent = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"];
-  if (keysToPrevent.includes(e.code)) {
-    e.preventDefault(); // ❌ empêche scroll sur Espace et flèches
-  }
+  const preventKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"];
+  if (preventKeys.includes(e.code)) e.preventDefault();
 }, { passive: false });
 
 window.onload = async function () {
@@ -38,58 +36,28 @@ window.onload = async function () {
   document.getElementById("pseudo").innerText = pseudo;
 
   let bestScore = await getBestScoreForPseudo(pseudo);
-  let score = 0;
-  let direction = null;
+  let score = 0, direction = null;
   let canChangeDirection = true;
-  let gameRunning = true;
   let snake = [{ x: 9 * box, y: 10 * box }];
   let greenCount = 0, yellowCount = 0, redCount = 0;
-
-  function randomPosition() {
-    const max = Math.floor(canvas.width / box);
-    let pos;
-    do {
-      pos = {
-        x: Math.floor(Math.random() * max) * box,
-        y: Math.floor(Math.random() * max) * box
-      };
-    } while (snake.some(part => part.x === pos.x && part.y === pos.y));
-    return pos;
-  }
 
   let food = randomPosition();
   let bonus = randomBonus();
 
-  function randomBonus() {
-    const types = ["life", "grow", "double"];
-    let pos = randomPosition();
-    return {
-      x: pos.x,
-      y: pos.y,
-      type: types[Math.floor(Math.random() * types.length)]
-    };
-  }
-
-  function updateScoreDisplay() {
-    document.getElementById("score").innerText = `Score : ${score}`;
-    document.getElementById("best").innerText = `Best score : ${bestScore}`;
-    document.getElementById("green-count").innerText = greenCount;
-    document.getElementById("yellow-count").innerText = yellowCount;
-    document.getElementById("red-count").innerText = redCount;
-  }
-
   document.addEventListener("keydown", (e) => {
-    // 🔄 pause avec Espace
     if (e.code === "Space") {
-      e.preventDefault(); // ❌ bloque le scroll
-      isPaused = !isPaused;
-      document.getElementById("pause-btn").innerText = isPaused ? "▶️ Reprendre" : "⏸ Pause";
+      e.preventDefault();
+      if (gameRunning) {
+        isPaused = !isPaused;
+        document.getElementById("pause-btn").innerText = isPaused ? "▶️ Reprendre" : "⏸ Pause";
+      }
       return;
     }
 
-    // ▶️ reprise avec Entrée
     if (e.code === "Enter") {
-      if (isPaused) {
+      if (!gameRunning) {
+        restartGame();
+      } else if (isPaused) {
         isPaused = false;
         document.getElementById("pause-btn").innerText = "⏸ Pause";
       }
@@ -114,15 +82,42 @@ window.onload = async function () {
     }
   };
 
+  function randomPosition() {
+    const max = Math.floor(canvas.width / box);
+    let pos;
+    do {
+      pos = {
+        x: Math.floor(Math.random() * max) * box,
+        y: Math.floor(Math.random() * max) * box
+      };
+    } while (snake.some(part => part.x === pos.x && part.y === pos.y));
+    return pos;
+  }
+
+  function randomBonus() {
+    const types = ["life", "grow", "double"];
+    const pos = randomPosition();
+    return {
+      x: pos.x,
+      y: pos.y,
+      type: types[Math.floor(Math.random() * types.length)]
+    };
+  }
+
+  function updateScoreDisplay() {
+    document.getElementById("score").innerText = `Score : ${score}`;
+    document.getElementById("best").innerText = `Best score : ${bestScore}`;
+    document.getElementById("green-count").innerText = greenCount;
+    document.getElementById("yellow-count").innerText = yellowCount;
+    document.getElementById("red-count").innerText = redCount;
+  }
+
   function draw() {
     if (!gameRunning || isPaused) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     ctx.fillStyle = "green";
-    for (let part of snake) {
-      ctx.fillRect(part.x, part.y, box, box);
-    }
+    for (let part of snake) ctx.fillRect(part.x, part.y, box, box);
 
     ctx.fillStyle = "green";
     ctx.fillRect(food.x, food.y, box, box);
@@ -137,12 +132,11 @@ window.onload = async function () {
     if (direction === "UP") head.y -= box;
     if (direction === "DOWN") head.y += box;
 
-    const hasCollision =
-      head.x < 0 || head.x >= canvas.width ||
-      head.y < 0 || head.y >= canvas.height ||
+    const collision =
+      head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height ||
       snake.slice(1).some(p => p.x === head.x && p.y === head.y);
 
-    if (hasCollision) return endGame();
+    if (collision) return endGame();
 
     if (head.x === food.x && head.y === food.y) {
       score += 1;
@@ -154,18 +148,13 @@ window.onload = async function () {
 
     if (head.x === bonus.x && head.y === bonus.y) {
       if (bonus.type === "life") {
-        score += 3;
-        redCount++;
+        score += 3; redCount++;
       } else if (bonus.type === "grow") {
-        score += 2;
-        yellowCount++;
+        score += 2; yellowCount++;
         snake.push({ ...snake[snake.length - 1] });
       } else if (bonus.type === "double") {
-        score += 2;
-        yellowCount++;
-        for (let i = 0; i < 2; i++) {
-          snake.push({ ...snake[snake.length - 1] });
-        }
+        score += 2; yellowCount++;
+        for (let i = 0; i < 2; i++) snake.push({ ...snake[snake.length - 1] });
       }
       bonus = randomBonus();
     }
@@ -178,14 +167,10 @@ window.onload = async function () {
   async function endGame() {
     clearInterval(game);
     gameRunning = false;
-    document.getElementById("final-score").innerText = `Score : ${score}`;
     document.getElementById("game-over").style.display = "block";
+    document.getElementById("final-score").innerText = `Score : ${score}`;
 
-    await db.collection("snake_scores").add({
-      pseudo,
-      score,
-      date: new Date()
-    });
+    await db.collection("snake_scores").add({ pseudo, score, date: new Date() });
 
     if (score > bestScore) {
       bestScore = score;
@@ -195,48 +180,43 @@ window.onload = async function () {
     afficherTopScores();
   }
 
+  function restartGame() {
+    document.getElementById("game-over").style.display = "none";
+    snake = [{ x: 9 * box, y: 10 * box }];
+    food = randomPosition();
+    bonus = randomBonus();
+    score = 0; greenCount = 0; yellowCount = 0; redCount = 0;
+    direction = null;
+    gameRunning = true;
+    isPaused = false;
+    updateScoreDisplay();
+    afficherTopScores();
+    clearInterval(game);
+    game = setInterval(draw, 150);
+  }
+
   async function afficherTopScores() {
     const list = document.getElementById("classement");
     list.innerHTML = "";
 
     const snapshot = await db.collection("snake_scores").get();
-
-    const scoresByPseudo = {};
+    const scores = {};
     snapshot.forEach(doc => {
-      const data = doc.data();
-      if (!scoresByPseudo[data.pseudo] || data.score > scoresByPseudo[data.pseudo]) {
-        scoresByPseudo[data.pseudo] = data.score;
-      }
+      const d = doc.data();
+      if (!scores[d.pseudo] || d.score > scores[d.pseudo]) scores[d.pseudo] = d.score;
     });
 
-    const topScores = Object.entries(scoresByPseudo)
-      .map(([pseudo, score]) => ({ pseudo, score }))
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 10);
-
-    topScores.forEach((entry, i) => {
-      const li = document.createElement("li");
-      li.textContent = `#${i + 1} - ${entry.pseudo} : ${entry.score}`;
-      list.appendChild(li);
-    });
+    Object.entries(scores)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .forEach(([pseudo, score], i) => {
+        const li = document.createElement("li");
+        li.textContent = `#${i + 1} - ${pseudo} : ${score}`;
+        list.appendChild(li);
+      });
   }
 
-  document.getElementById("rejouer-btn").addEventListener("click", () => {
-    document.getElementById("game-over").style.display = "none";
-    snake = [{ x: 9 * box, y: 10 * box }];
-    food = randomPosition();
-    bonus = randomBonus();
-    score = 0;
-    greenCount = 0;
-    yellowCount = 0;
-    redCount = 0;
-    direction = null;
-    gameRunning = true;
-    updateScoreDisplay();
-    afficherTopScores();
-    clearInterval(game);
-    game = setInterval(draw, 150);
-  });
+  document.getElementById("rejouer-btn").addEventListener("click", restartGame);
 
   document.getElementById("pause-btn").addEventListener("click", () => {
     isPaused = !isPaused;
@@ -263,8 +243,8 @@ async function getBestScoreForPseudo(pseudo) {
       document.getElementById("best").innerText = `Best score : 0`;
       return 0;
     }
-  } catch (error) {
-    console.error("Erreur récupération best score:", error.message);
+  } catch (e) {
+    console.error("Erreur best score :", e.message);
     document.getElementById("best").innerText = `Best score : 0`;
     return 0;
   }
