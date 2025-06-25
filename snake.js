@@ -36,17 +36,15 @@ window.onload = function () {
   let canChangeDirection = true;
   let gameRunning = true;
   let snake = [{ x: 9 * box, y: 10 * box }];
-
-  let greenCount = 0;
-  let yellowCount = 0;
-  let redCount = 0;
+  let greenCount = 0, yellowCount = 0, redCount = 0;
 
   function randomPosition() {
+    const max = Math.floor(canvas.width / box);
     let pos;
     do {
       pos = {
-        x: Math.floor(Math.random() * 20) * box,
-        y: Math.floor(Math.random() * 20) * box
+        x: Math.floor(Math.random() * max) * box,
+        y: Math.floor(Math.random() * max) * box
       };
     } while (snake.some(part => part.x === pos.x && part.y === pos.y));
     return pos;
@@ -57,9 +55,10 @@ window.onload = function () {
 
   function randomBonus() {
     const types = ["life", "grow", "double"];
+    let pos = randomPosition();
     return {
-      x: randomPosition().x,
-      y: randomPosition().y,
+      x: pos.x,
+      y: pos.y,
       type: types[Math.floor(Math.random() * types.length)]
     };
   }
@@ -175,24 +174,15 @@ window.onload = function () {
     const list = document.getElementById("classement");
     list.innerHTML = "";
 
-    const snapshot = await db.collection("snake_scores").get();
+    const snapshot = await db.collection("snake_scores")
+      .orderBy("score", "desc")
+      .limit(10)
+      .get();
 
-    const scoresByPseudo = {};
-    snapshot.forEach(doc => {
+    snapshot.forEach((doc, i) => {
       const data = doc.data();
-      if (!scoresByPseudo[data.pseudo] || data.score > scoresByPseudo[data.pseudo]) {
-        scoresByPseudo[data.pseudo] = data.score;
-      }
-    });
-
-    const topScores = Object.entries(scoresByPseudo)
-      .map(([pseudo, score]) => ({ pseudo, score }))
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 10);
-
-    topScores.forEach((entry, i) => {
       const li = document.createElement("li");
-      li.textContent = `#${i + 1} - ${entry.pseudo} : ${entry.score}`;
+      li.textContent = `#${i + 1} - ${data.pseudo} : ${data.score}`;
       list.appendChild(li);
     });
   }
