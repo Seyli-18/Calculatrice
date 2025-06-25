@@ -30,47 +30,46 @@ window.onload = function () {
   } while (!pseudo);
   document.getElementById("pseudo").innerText = pseudo;
 
-  let greenCount = 0;
-  let yellowCount = 0;
-  let redCount = 0;
   let score = 0;
   let bestScore = 0;
   let direction = null;
   let canChangeDirection = true;
   let gameRunning = true;
   let snake = [{ x: 9 * box, y: 10 * box }];
-  let food = randomPosition();
-  let bonus = randomBonus();
+
+  let greenCount = 0;
+  let yellowCount = 0;
+  let redCount = 0;
 
   function randomPosition() {
-  let pos;
-  do {
-    pos = {
-      x: Math.floor(Math.random() * 20) * box,
-      y: Math.floor(Math.random() * 20) * box
-    };
-  } while (snake.some(part => part.x === pos.x && part.y === pos.y));
-  return pos;
-}
+    let pos;
+    do {
+      pos = {
+        x: Math.floor(Math.random() * 20) * box,
+        y: Math.floor(Math.random() * 20) * box
+      };
+    } while (snake.some(part => part.x === pos.x && part.y === pos.y));
+    return pos;
+  }
 
+  let food = randomPosition();
+  let bonus = randomBonus();
 
   function randomBonus() {
     const types = ["life", "grow", "double"];
     return {
-      x: Math.floor(Math.random() * 20) * box,
-      y: Math.floor(Math.random() * 20) * box,
+      x: randomPosition().x,
+      y: randomPosition().y,
       type: types[Math.floor(Math.random() * types.length)]
     };
   }
 
   function updateScoreDisplay() {
+    document.getElementById("score").innerText = `Score : ${score}`;
+    document.getElementById("best").innerText = `Best score : ${bestScore}`;
     document.getElementById("green-count").innerText = greenCount;
     document.getElementById("yellow-count").innerText = yellowCount;
     document.getElementById("red-count").innerText = redCount;
-    document.getElementById("score").innerText = `Score : ${score}`;
-    document.getElementById("best").innerText = `Best score : ${bestScore}`;
-    // 👇 On supprime toute mention de "vies"
-    // document.getElementById("vies").innerText = `Vie : ${vies}`;
   }
 
   document.addEventListener("keydown", (e) => {
@@ -84,7 +83,6 @@ window.onload = function () {
 
   window.mobileMove = function (dir) {
     if (!canChangeDirection || isPaused) return;
-    canChangeDirection = false;
     if (
       (dir === "LEFT" && direction !== "RIGHT") ||
       (dir === "RIGHT" && direction !== "LEFT") ||
@@ -127,34 +125,25 @@ window.onload = function () {
       return endGame();
     }
 
- if (head.x === bonus.x && head.y === bonus.y) {
-  if (bonus.type === "life") {
-    score += 3;
-    redCount++;
-  } else if (bonus.type === "grow") {
-    score += 2;
-    yellowCount++;
-    snake.push({ ...snake[snake.length - 1] });
-  } else if (bonus.type === "double") {
-    score += 2;
-    yellowCount++;
-    for (let i = 0; i < 2; i++) {
-      snake.push({ ...snake[snake.length - 1] });
-    }
-  }
-  bonus = randomBonus();
- } else {
+    if (head.x === food.x && head.y === food.y) {
+      score += 1;
+      greenCount++;
+      food = randomPosition();
+    } else {
       snake.pop();
     }
 
     if (head.x === bonus.x && head.y === bonus.y) {
       if (bonus.type === "life") {
         score += 3;
+        redCount++;
       } else if (bonus.type === "grow") {
         score += 2;
+        yellowCount++;
         snake.push({ ...snake[snake.length - 1] });
       } else if (bonus.type === "double") {
         score += 2;
+        yellowCount++;
         for (let i = 0; i < 2; i++) {
           snake.push({ ...snake[snake.length - 1] });
         }
@@ -183,32 +172,30 @@ window.onload = function () {
   }
 
   async function afficherTopScores() {
-  const list = document.getElementById("classement");
-  list.innerHTML = "";
+    const list = document.getElementById("classement");
+    list.innerHTML = "";
 
-  const snapshot = await db.collection("snake_scores").get();
+    const snapshot = await db.collection("snake_scores").get();
 
-  // Regrouper par pseudo et garder le meilleur score
-  const scoresByPseudo = {};
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    if (!scoresByPseudo[data.pseudo] || data.score > scoresByPseudo[data.pseudo]) {
-      scoresByPseudo[data.pseudo] = data.score;
-    }
-  });
+    const scoresByPseudo = {};
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (!scoresByPseudo[data.pseudo] || data.score > scoresByPseudo[data.pseudo]) {
+        scoresByPseudo[data.pseudo] = data.score;
+      }
+    });
 
-  // Convertir en tableau, trier et garder top 10
-  const topScores = Object.entries(scoresByPseudo)
-    .map(([pseudo, score]) => ({ pseudo, score }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 10);
+    const topScores = Object.entries(scoresByPseudo)
+      .map(([pseudo, score]) => ({ pseudo, score }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10);
 
-  topScores.forEach((entry, i) => {
-    const li = document.createElement("li");
-    li.textContent = `#${i + 1} - ${entry.pseudo} : ${entry.score}`;
-    list.appendChild(li);
-  });
-}
+    topScores.forEach((entry, i) => {
+      const li = document.createElement("li");
+      li.textContent = `#${i + 1} - ${entry.pseudo} : ${entry.score}`;
+      list.appendChild(li);
+    });
+  }
 
   document.getElementById("rejouer-btn").addEventListener("click", () => {
     document.getElementById("game-over").style.display = "none";
@@ -216,6 +203,9 @@ window.onload = function () {
     food = randomPosition();
     bonus = randomBonus();
     score = 0;
+    greenCount = 0;
+    yellowCount = 0;
+    redCount = 0;
     direction = null;
     gameRunning = true;
     updateScoreDisplay();
