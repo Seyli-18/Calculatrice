@@ -117,3 +117,22 @@ canvas {
     padding: 0 15px;
   }
 }
+
+body, html {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 60px;
+}
+
+@media (min-width: 800px) {
+  .touch-controls {
+    display: none;
+  }
+}
+
