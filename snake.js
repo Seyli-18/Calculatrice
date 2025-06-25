@@ -248,3 +248,26 @@ async function getBestScoreForPseudo(pseudo) {
     document.getElementById("best").innerText = `Best score : 0`;
   }
 }
+
+async function getBestScoreForPseudo(pseudo) {
+  try {
+    const snapshot = await db.collection("snake_scores")
+      .where("pseudo", "==", pseudo)
+      .get();
+
+    let max = 0;
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.score > max) {
+        max = data.score;
+      }
+    });
+
+    bestScore = max;
+    document.getElementById("best").innerText = `Best score : ${bestScore}`;
+  } catch (error) {
+    console.error("Erreur lors de la récupération du best score :", error);
+    bestScore = 0;
+    document.getElementById("best").innerText = `Best score : 0`;
+  }
+}
