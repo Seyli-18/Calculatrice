@@ -10,8 +10,10 @@ const db = firebase.firestore();
 let game, isPaused = false;
 
 window.addEventListener("keydown", function (e) {
-  const keys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
-  if (keys.includes(e.key)) e.preventDefault();
+  const keysToPrevent = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"];
+  if (keysToPrevent.includes(e.code)) {
+    e.preventDefault(); // ❌ empêche scroll sur Espace et flèches
+  }
 }, { passive: false });
 
 window.onload = async function () {
@@ -24,7 +26,6 @@ window.onload = async function () {
   audio.volume = 0.2;
   audio.play();
 
-  // Masquer les boutons de contrôle sur PC
   if (window.innerWidth > 768) {
     const controls = document.querySelector(".touch-controls");
     if (controls) controls.style.display = "none";
@@ -36,7 +37,7 @@ window.onload = async function () {
   } while (!pseudo);
   document.getElementById("pseudo").innerText = pseudo;
 
-  let bestScore = await getBestScoreForPseudo(pseudo); // ⚠️ Récupération ici
+  let bestScore = await getBestScoreForPseudo(pseudo);
   let score = 0;
   let direction = null;
   let canChangeDirection = true;
@@ -78,19 +79,24 @@ window.onload = async function () {
   }
 
   document.addEventListener("keydown", (e) => {
-    if (!canChangeDirection || isPaused) return;
-
+    // 🔄 pause avec Espace
     if (e.code === "Space") {
+      e.preventDefault(); // ❌ bloque le scroll
       isPaused = !isPaused;
       document.getElementById("pause-btn").innerText = isPaused ? "▶️ Reprendre" : "⏸ Pause";
       return;
     }
 
-    if (e.code === "Enter" && isPaused) {
-      isPaused = false;
-      document.getElementById("pause-btn").innerText = "⏸ Pause";
+    // ▶️ reprise avec Entrée
+    if (e.code === "Enter") {
+      if (isPaused) {
+        isPaused = false;
+        document.getElementById("pause-btn").innerText = "⏸ Pause";
+      }
       return;
     }
+
+    if (!canChangeDirection || isPaused) return;
 
     canChangeDirection = false;
     if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
@@ -181,7 +187,6 @@ window.onload = async function () {
       date: new Date()
     });
 
-    // Met à jour le best score si le nouveau est meilleur
     if (score > bestScore) {
       bestScore = score;
       document.getElementById("best").innerText = `Best score : ${bestScore}`;
@@ -242,7 +247,6 @@ window.onload = async function () {
   game = setInterval(draw, 150);
 };
 
-// 🔄 Récupère le best score depuis Firebase via index (pseudo + score)
 async function getBestScoreForPseudo(pseudo) {
   try {
     const snapshot = await db.collection("snake_scores")
