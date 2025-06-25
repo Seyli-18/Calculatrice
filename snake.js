@@ -30,6 +30,9 @@ window.onload = function () {
   } while (!pseudo);
   document.getElementById("pseudo").innerText = pseudo;
 
+  let greenCount = 0;
+  let yellowCount = 0;
+  let redCount = 0;
   let score = 0;
   let bestScore = 0;
   let direction = null;
@@ -56,6 +59,9 @@ window.onload = function () {
   }
 
   function updateScoreDisplay() {
+    document.getElementById("green-count").innerText = greenCount;
+    document.getElementById("yellow-count").innerText = yellowCount;
+    document.getElementById("red-count").innerText = redCount;
     document.getElementById("score").innerText = `Score : ${score}`;
     document.getElementById("best").innerText = `Best score : ${bestScore}`;
     // 👇 On supprime toute mention de "vies"
@@ -116,10 +122,23 @@ window.onload = function () {
       return endGame();
     }
 
-    if (head.x === food.x && head.y === food.y) {
-      score += 1;
-      food = randomPosition();
-    } else {
+ if (head.x === bonus.x && head.y === bonus.y) {
+  if (bonus.type === "life") {
+    score += 3;
+    redCount++;
+  } else if (bonus.type === "grow") {
+    score += 2;
+    yellowCount++;
+    snake.push({ ...snake[snake.length - 1] });
+  } else if (bonus.type === "double") {
+    score += 2;
+    yellowCount++;
+    for (let i = 0; i < 2; i++) {
+      snake.push({ ...snake[snake.length - 1] });
+    }
+  }
+  bonus = randomBonus();
+ } else {
       snake.pop();
     }
 
