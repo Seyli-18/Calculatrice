@@ -11,9 +11,7 @@ let game, isPaused = false;
 
 window.addEventListener("keydown", function (e) {
   const keys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
-  if (keys.includes(e.key)) {
-    e.preventDefault();
-  }
+  if (keys.includes(e.key)) e.preventDefault();
 }, { passive: false });
 
 window.onload = function () {
@@ -60,6 +58,8 @@ window.onload = function () {
   function updateScoreDisplay() {
     document.getElementById("score").innerText = `Score : ${score}`;
     document.getElementById("best").innerText = `Best score : ${bestScore}`;
+    // 👇 On supprime toute mention de "vies"
+    // document.getElementById("vies").innerText = `Vie : ${vies}`;
   }
 
   document.addEventListener("keydown", (e) => {
