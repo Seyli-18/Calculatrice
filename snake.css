@@ -2,12 +2,8 @@
 body, html {
   margin: 0;
   padding: 0;
-  background: url("image/background.jpg") no-repeat center center fixed;
-  background-size: cover;
-  color: white;
-  font-family: Arial, sans-serif;
-  text-align: center;
-  overflow-x: hidden;
+  background-color: #111;
+  ...
 }
 
 /* Conteneur principal */
