@@ -9,10 +9,9 @@ const db = firebase.firestore();
 
 let game, isPaused = false, isTeleporting = false;
 
-// ✅ Bloque le scroll quand on utilise les flèches pour jouer
-window.addEventListener("keydown", function(e) {
-  const keys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
-  if (keys.includes(e.key)) {
+// ✅ Bloque le scroll de page avec les flèches, même si la page est focus
+window.addEventListener("keydown", function (e) {
+  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
     e.preventDefault();
   }
 }, { passive: false });
