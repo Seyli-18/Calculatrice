@@ -170,22 +170,36 @@ window.onload = function () {
     afficherTopScores();
   }
 
-  async function afficherTopScores() {
-    const list = document.getElementById("classement");
-    list.innerHTML = "";
+ async function afficherTopScores() {
+  const list = document.getElementById("classement");
+  list.innerHTML = "";
 
-    const snapshot = await db.collection("snake_scores")
-      .orderBy("score", "desc")
-      .limit(10)
-      .get();
+  const snapshot = await db.collection("snake_scores").get();
 
-    snapshot.forEach((doc, i) => {
-      const data = doc.data();
-      const li = document.createElement("li");
-      li.textContent = `#${i + 1} - ${data.pseudo} : ${data.score}`;
-      list.appendChild(li);
-    });
-  }
+  const scoresByPseudo = {};
+
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    const pseudo = data.pseudo;
+    const score = data.score;
+
+    if (!scoresByPseudo[pseudo] || score > scoresByPseudo[pseudo]) {
+      scoresByPseudo[pseudo] = score;
+    }
+  });
+
+  const topScores = Object.entries(scoresByPseudo)
+    .map(([pseudo, score]) => ({ pseudo, score }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+
+  topScores.forEach((entry, i) => {
+    const li = document.createElement("li");
+    li.textContent = `#${i + 1} - ${entry.pseudo} : ${entry.score}`;
+    list.appendChild(li);
+  });
+}
+
 
   document.getElementById("rejouer-btn").addEventListener("click", () => {
     document.getElementById("game-over").style.display = "none";
