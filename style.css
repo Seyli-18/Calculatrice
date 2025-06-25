@@ -182,3 +182,20 @@ select {
   background-color: rgba(255, 255, 255, 0.2);
 }
 
+#fruit-stats {
+  margin-top: 10px;
+  font-size: 18px;
+  color: #fff;
+}
+
+#fruit-stats em {
+  color: #ccc;
+  font-style: italic;
+  margin-left: 8px;
+}
+
+.fruit {
+  font-size: 22px;
+}
+
+
