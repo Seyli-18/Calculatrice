@@ -142,5 +142,15 @@ canvas {
   cursor: pointer;
 }
 
+@media (max-width: 600px) {
+  .touch-controls button {
+    width: 80px;
+    height: 80px;
+    font-size: 36px;
+    padding: 20px;
+  }
 
-
+  .touch-controls .horizontal {
+    gap: 25px;
+  }
+}
