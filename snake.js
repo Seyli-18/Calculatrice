@@ -249,3 +249,52 @@ async function getBestScoreForPseudo(pseudo) {
     return 0;
   }
 }
+
+// === Gestion des avis (partie Snake) ===
+async function envoyerAvis() {
+  const texte = document.getElementById("avis-text").value.trim();
+  const note = parseInt(document.getElementById("avis-note").value);
+
+  if (!texte || texte.length > 350) return alert("Avis vide ou trop long.");
+
+  const pseudoAvis = prompt("Entrez votre pseudo pour l'avis :") || "Anonyme";
+  await db.collection("snake_avis").add({
+    pseudo: pseudoAvis,
+    texte,
+    note,
+    date: new Date(),
+    likes: 0
+  });
+
+  document.getElementById("avis-text").value = "";
+  afficherAvis();
+}
+
+async function afficherAvis() {
+  const container = document.getElementById("liste-avis");
+  container.innerHTML = "";
+
+  const snapshot = await db.collection("snake_avis").orderBy("likes", "desc").get();
+
+  snapshot.forEach(doc => {
+    const avis = doc.data();
+    const div = document.createElement("div");
+    div.classList.add("avis");
+
+    div.innerHTML = `
+      <p><strong>${avis.pseudo}</strong> - ${"⭐".repeat(avis.note)}</p>
+      <p>${avis.texte}</p>
+      <p><small>${new Date(avis.date.toDate()).toLocaleString()}</small></p>
+      <p>❤️ ${avis.likes}</p>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+window.onload = async function () {
+  // ... (ton code du jeu Snake ici)
+
+  afficherAvis(); // 🔁 charge les avis Snake en bas de page
+}
+
