@@ -9,47 +9,47 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 </head>
 <body>
   <div class="container">
-    <h2>🎮 Joueur : <span id="pseudo">Anonyme</span></h2>
-    <p id="score">Score : 0</p>
-    <p id="best">Best score : 0</p>
-
-    <button id="connect-google">Se connecter avec Google</button>
-    <p id="user-status">Non connecté</p>
-
-    <canvas id="snake" width="400" height="400"></canvas>
-
-    <div id="game-over">
-      <h2>💀 Game Over !</h2>
-      <p id="final-score">Score : 0</p>
-      <button id="rejouer-btn">🔁 Rejouer</button>
+    <div class="sidebar">
+      <h2>🎮 Joueur : <span id="pseudo"></span></h2>
+      <p id="score">Score : 0</p>
+      <div id="fruit-stats">
+      <p><span class="fruit">🍏</span> x <span id="green-count">0</span> <em>+1 point</em></p>
+      <p><span class="fruit">🍋</span> x <span id="yellow-count">0</span> <em>+2 points</em></p>
+      <p><span class="fruit">🍎</span> x <span id="red-count">0</span> <em>+3 points</em></p>
+      <div> 
+        <p id="best">Best score : 0</p>
+      <button id="pause-btn">⏸ Pause</button>
     </div>
 
-    <button id="pause-btn">⏸ Pause</button>
+    <div class="game-zone">
+      <canvas id="snake" width="400" height="400"></canvas>
 
+     <div class="touch-controls">
+  <button onclick="mobileMove('UP')">⬆️</button>
+  <div class="horizontal">
+    <button onclick="mobileMove('LEFT')">⬅️</button>
+    <button onclick="mobileMove('DOWN')">⬇️</button>
+    <button onclick="mobileMove('RIGHT')">➡️</button>
+  </div>
+</div>
+
+      <div id="game-over">
+        <h2>💀 Game Over !</h2>
+        <p id="final-score">Score : 0</p>
+        <button id="rejouer-btn">🔁 Rejouer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="top-scores">
     <h2>🏆 Top 10</h2>
     <ol id="classement"></ol>
-
-    <section id="avis-section">
-      <h2>📣 Avis sur le jeu Snake</h2>
-      <div id="avis-form">
-        <textarea id="avis-text" maxlength="500" placeholder="Votre avis (max 500 caractères)"></textarea>
-        <select id="avis-note">
-          <option value="1">⭐</option>
-          <option value="2">⭐⭐</option>
-          <option value="3">⭐⭐⭐</option>
-          <option value="4">⭐⭐⭐⭐</option>
-          <option value="5" selected>⭐⭐⭐⭐⭐</option>
-        </select>
-        <button onclick="envoyerAvis()">Envoyer</button>
-      </div>
-      <div id="liste-avis"></div>
-    </section>
   </div>
 
   <script src="snake.js"></script>
 </body>
 </html>
+
