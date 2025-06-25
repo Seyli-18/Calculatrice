@@ -132,26 +132,7 @@ canvas {
   font-size: 18px;
 }
 
-#rejouer-btn {
-  font-size: 18px;
-  padding: 10px 20px;
-  margin-top: 10px;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-@media (max-width: 600px) {
-  .touch-controls button {
-    width: 80px;
-    height: 80px;
-    font-size: 36px;
-    padding: 20px;
-  }
-
-  #avis-section {
+#avis-section {
   background: rgba(255, 255, 255, 0.85);
   padding: 20px;
   margin-top: 30px;
@@ -182,6 +163,24 @@ canvas {
   margin-bottom: 10px;
 }
 
+#rejouer-btn {
+  font-size: 18px;
+  padding: 10px 20px;
+  margin-top: 10px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .touch-controls button {
+    width: 80px;
+    height: 80px;
+    font-size: 36px;
+    padding: 20px;
+  }
 
   .touch-controls .horizontal {
     gap: 25px;
