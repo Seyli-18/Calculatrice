@@ -29,6 +29,7 @@ window.onload = function () {
     pseudo = prompt("Entrez votre pseudo :")?.trim();
   } while (!pseudo);
   document.getElementById("pseudo").innerText = pseudo;
+  getBestScoreForPseudo(pseudo); // ✅ Best score récupéré
 
   let score = 0;
   let bestScore = 0;
@@ -74,14 +75,12 @@ window.onload = function () {
   document.addEventListener("keydown", (e) => {
     if (!canChangeDirection || isPaused) return;
 
-    // Pause avec Espace
     if (e.code === "Space") {
       isPaused = !isPaused;
       document.getElementById("pause-btn").innerText = isPaused ? "▶️ Reprendre" : "⏸ Pause";
       return;
     }
 
-    // Reprise avec Entrée
     if (e.code === "Enter" && isPaused) {
       isPaused = false;
       document.getElementById("pause-btn").innerText = "⏸ Pause";
@@ -96,21 +95,13 @@ window.onload = function () {
   });
 
   window.mobileMove = function (dir) {
-  if (isPaused) return;
-
-  const opposites = {
-    LEFT: "RIGHT",
-    RIGHT: "LEFT",
-    UP: "DOWN",
-    DOWN: "UP"
+    if (isPaused) return;
+    const opposites = { LEFT: "RIGHT", RIGHT: "LEFT", UP: "DOWN", DOWN: "UP" };
+    if (direction !== opposites[dir]) {
+      direction = dir;
+      canChangeDirection = false;
+    }
   };
-
-  if (direction !== opposites[dir]) {
-    direction = dir;
-    canChangeDirection = false; // bloque le double appui avant le tour suivant
-  }
-};
-
 
   function draw() {
     if (!gameRunning || isPaused) return;
@@ -140,9 +131,7 @@ window.onload = function () {
       head.y < 0 || head.y >= canvas.height ||
       snake.slice(1).some(p => p.x === head.x && p.y === head.y);
 
-    if (hasCollision) {
-      return endGame();
-    }
+    if (hasCollision) return endGame();
 
     if (head.x === food.x && head.y === food.y) {
       score += 1;
@@ -171,7 +160,6 @@ window.onload = function () {
     }
 
     snake.unshift(head);
-    canChangeDirection = true;
     updateScoreDisplay();
     canChangeDirection = true;
   }
@@ -242,3 +230,21 @@ window.onload = function () {
   afficherTopScores();
   game = setInterval(draw, 150);
 };
+
+// ✅ Best score lié au pseudo
+async function getBestScoreForPseudo(pseudo) {
+  const snapshot = await db.collection("snake_scores")
+    .where("pseudo", "==", pseudo)
+    .orderBy("score", "desc")
+    .limit(1)
+    .get();
+
+  if (!snapshot.empty) {
+    const data = snapshot.docs[0].data();
+    bestScore = data.score;
+    document.getElementById("best").innerText = `Best score : ${bestScore}`;
+  } else {
+    bestScore = 0;
+    document.getElementById("best").innerText = `Best score : 0`;
+  }
+}
