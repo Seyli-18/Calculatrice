@@ -29,7 +29,7 @@ window.onload = function () {
     pseudo = prompt("Entrez votre pseudo :")?.trim();
   } while (!pseudo);
   document.getElementById("pseudo").innerText = pseudo;
-  getBestScoreForPseudo(pseudo); // ✅ Best score récupéré
+  getBestScoreForPseudo(pseudo); // ✅ Best score via Firebase
 
   let score = 0;
   let bestScore = 0;
@@ -177,6 +177,7 @@ window.onload = function () {
     });
 
     afficherTopScores();
+    getBestScoreForPseudo(pseudo); // Mise à jour du best après fin de partie
   }
 
   async function afficherTopScores() {
@@ -218,6 +219,7 @@ window.onload = function () {
     gameRunning = true;
     updateScoreDisplay();
     afficherTopScores();
+    getBestScoreForPseudo(pseudo);
     clearInterval(game);
     game = setInterval(draw, 150);
   });
@@ -231,43 +233,24 @@ window.onload = function () {
   game = setInterval(draw, 150);
 };
 
-// ✅ Best score lié au pseudo
-async function getBestScoreForPseudo(pseudo) {
-  const snapshot = await db.collection("snake_scores")
-    .where("pseudo", "==", pseudo)
-    .orderBy("score", "desc")
-    .limit(1)
-    .get();
-
-  if (!snapshot.empty) {
-    const data = snapshot.docs[0].data();
-    bestScore = data.score;
-    document.getElementById("best").innerText = `Best score : ${bestScore}`;
-  } else {
-    bestScore = 0;
-    document.getElementById("best").innerText = `Best score : 0`;
-  }
-}
-
+// ✅ Fonction pour récupérer le best score Firebase (avec index)
 async function getBestScoreForPseudo(pseudo) {
   try {
     const snapshot = await db.collection("snake_scores")
       .where("pseudo", "==", pseudo)
+      .orderBy("score", "desc")
+      .limit(1)
       .get();
 
-    let max = 0;
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      if (data.score > max) {
-        max = data.score;
-      }
-    });
-
-    bestScore = max;
-    document.getElementById("best").innerText = `Best score : ${bestScore}`;
+    if (!snapshot.empty) {
+      const data = snapshot.docs[0].data();
+      bestScore = data.score;
+      document.getElementById("best").innerText = `Best score : ${bestScore}`;
+    } else {
+      bestScore = 0;
+      document.getElementById("best").innerText = `Best score : 0`;
+    }
   } catch (error) {
-    console.error("Erreur lors de la récupération du best score :", error);
-    bestScore = 0;
-    document.getElementById("best").innerText = `Best score : 0`;
+    console.error("Erreur lors de la récupération du best score :", error.message);
   }
 }
