@@ -183,21 +183,32 @@ window.onload = function () {
   }
 
   async function afficherTopScores() {
-    const list = document.getElementById("classement");
-    list.innerHTML = "";
+  const list = document.getElementById("classement");
+  list.innerHTML = "";
 
-    const snapshot = await db.collection("snake_scores")
-      .orderBy("score", "desc")
-      .limit(10)
-      .get();
+  const snapshot = await db.collection("snake_scores").get();
 
-    snapshot.forEach((doc, i) => {
-      const data = doc.data();
-      const li = document.createElement("li");
-      li.textContent = `#${i + 1} - ${data.pseudo} : ${data.score}`;
-      list.appendChild(li);
-    });
-  }
+  // Regrouper par pseudo et garder le meilleur score
+  const scoresByPseudo = {};
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    if (!scoresByPseudo[data.pseudo] || data.score > scoresByPseudo[data.pseudo]) {
+      scoresByPseudo[data.pseudo] = data.score;
+    }
+  });
+
+  // Convertir en tableau, trier et garder top 10
+  const topScores = Object.entries(scoresByPseudo)
+    .map(([pseudo, score]) => ({ pseudo, score }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+
+  topScores.forEach((entry, i) => {
+    const li = document.createElement("li");
+    li.textContent = `#${i + 1} - ${entry.pseudo} : ${entry.score}`;
+    list.appendChild(li);
+  });
+}
 
   document.getElementById("rejouer-btn").addEventListener("click", () => {
     document.getElementById("game-over").style.display = "none";
