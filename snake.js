@@ -298,3 +298,67 @@ window.onload = async function () {
   afficherAvis(); // 🔁 charge les avis Snake en bas de page
 }
 
+let currentUser = null;
+
+// Connexion Google
+document.getElementById("connect-google").addEventListener("click", async () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try {
+    const result = await firebase.auth().signInWithPopup(provider);
+    currentUser = result.user;
+    document.getElementById("user-status").innerText = `Connecté en tant que : ${currentUser.displayName || currentUser.email}`;
+    afficherAvis(); // recharge les avis à l'affichage
+  } catch (error) {
+    alert("Échec de connexion");
+  }
+});
+
+// Envoi d’un avis
+async function envoyerAvis() {
+  const texte = document.getElementById("avis-text").value.trim();
+  const note = parseInt(document.getElementById("avis-note").value);
+
+  if (!currentUser) {
+    alert("Veuillez vous connecter avec Google pour poster un avis.");
+    return;
+  }
+  if (!texte || texte.length > 500) {
+    alert("L'avis est vide ou dépasse 500 caractères.");
+    return;
+  }
+
+  await db.collection("snake_avis").add({
+    pseudo: currentUser.displayName || currentUser.email,
+    uid: currentUser.uid,
+    texte,
+    note,
+    likes: 0,
+    date: new Date()
+  });
+
+  document.getElementById("avis-text").value = "";
+  afficherAvis();
+}
+
+// Affichage des avis
+async function afficherAvis() {
+  const container = document.getElementById("liste-avis");
+  container.innerHTML = "";
+
+  const snapshot = await db.collection("snake_avis").orderBy("likes", "desc").get();
+
+  snapshot.forEach(doc => {
+    const avis = doc.data();
+    const div = document.createElement("div");
+    div.classList.add("avis");
+
+    div.innerHTML = `
+      <p><strong>${avis.pseudo}</strong> - ${"⭐".repeat(avis.note)}</p>
+      <p>${avis.texte}</p>
+      <p><small>${new Date(avis.date.toDate()).toLocaleString()}</small></p>
+      <p>❤️ ${avis.likes}</p>
+    `;
+    container.appendChild(div);
+  });
+}
+
