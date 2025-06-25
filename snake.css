@@ -97,4 +97,39 @@ canvas {
   }
 }
 
+#game-over {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.85);
+  padding: 20px 30px;
+  border-radius: 10px;
+  border: 2px solid white;
+  z-index: 10;
+}
+
+#game-over h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+#final-score {
+  margin: 10px 0;
+  font-size: 18px;
+}
+
+#rejouer-btn {
+  font-size: 18px;
+  padding: 10px 20px;
+  margin-top: 10px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+
 
