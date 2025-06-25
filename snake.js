@@ -73,6 +73,21 @@ window.onload = function () {
 
   document.addEventListener("keydown", (e) => {
     if (!canChangeDirection || isPaused) return;
+
+    // Pause avec Espace
+    if (e.code === "Space") {
+      isPaused = !isPaused;
+      document.getElementById("pause-btn").innerText = isPaused ? "▶️ Reprendre" : "⏸ Pause";
+      return;
+    }
+
+    // Reprise avec Entrée
+    if (e.code === "Enter" && isPaused) {
+      isPaused = false;
+      document.getElementById("pause-btn").innerText = "⏸ Pause";
+      return;
+    }
+
     canChangeDirection = false;
     if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
     else if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
@@ -170,36 +185,31 @@ window.onload = function () {
     afficherTopScores();
   }
 
- async function afficherTopScores() {
-  const list = document.getElementById("classement");
-  list.innerHTML = "";
+  async function afficherTopScores() {
+    const list = document.getElementById("classement");
+    list.innerHTML = "";
 
-  const snapshot = await db.collection("snake_scores").get();
+    const snapshot = await db.collection("snake_scores").get();
 
-  const scoresByPseudo = {};
+    const scoresByPseudo = {};
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (!scoresByPseudo[data.pseudo] || data.score > scoresByPseudo[data.pseudo]) {
+        scoresByPseudo[data.pseudo] = data.score;
+      }
+    });
 
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    const pseudo = data.pseudo;
-    const score = data.score;
+    const topScores = Object.entries(scoresByPseudo)
+      .map(([pseudo, score]) => ({ pseudo, score }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10);
 
-    if (!scoresByPseudo[pseudo] || score > scoresByPseudo[pseudo]) {
-      scoresByPseudo[pseudo] = score;
-    }
-  });
-
-  const topScores = Object.entries(scoresByPseudo)
-    .map(([pseudo, score]) => ({ pseudo, score }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 10);
-
-  topScores.forEach((entry, i) => {
-    const li = document.createElement("li");
-    li.textContent = `#${i + 1} - ${entry.pseudo} : ${entry.score}`;
-    list.appendChild(li);
-  });
-}
-
+    topScores.forEach((entry, i) => {
+      const li = document.createElement("li");
+      li.textContent = `#${i + 1} - ${entry.pseudo} : ${entry.score}`;
+      list.appendChild(li);
+    });
+  }
 
   document.getElementById("rejouer-btn").addEventListener("click", () => {
     document.getElementById("game-over").style.display = "none";
