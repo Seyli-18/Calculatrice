@@ -1,4 +1,4 @@
-// Firebase config
+// === Firebase configuration ===
 const firebaseConfig = {
   apiKey: "AIzaSyCWSSYXHJNXcbFaJn6AapsEARKCTjhzqXs",
   authDomain: "monsitecalculatrice.firebaseapp.com",
@@ -10,28 +10,31 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 
 let utilisateur = null;
-let expression = "";
-
 let game, isPaused = false, gameRunning = true;
 
+// Empêche le scroll avec les flèches ou la barre espace
 window.addEventListener("keydown", function (e) {
-  const preventKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"];
-  if (preventKeys.includes(e.code)) e.preventDefault();
+  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(e.code)) {
+    e.preventDefault();
+  }
 }, { passive: false });
 
+// === START ===
 window.onload = async function () {
   const canvas = document.getElementById("snake");
   const ctx = canvas.getContext("2d");
   const box = 20;
 
+  // Audio
   const audio = new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
   audio.loop = true;
   audio.volume = 0.2;
   audio.play();
 
+  // Masquer les boutons tactiles sur PC
   if (window.innerWidth > 768) {
     const controls = document.querySelector(".touch-controls");
-    if (controls) controls.style.display = "none";
+    if (controls) controls.classList.add("hidden");
   }
 
   let pseudo;
@@ -41,51 +44,14 @@ window.onload = async function () {
   document.getElementById("pseudo").innerText = pseudo;
 
   let bestScore = await getBestScoreForPseudo(pseudo);
-  let score = 0, direction = null;
+  let score = 0;
+  let direction = null;
   let canChangeDirection = true;
   let snake = [{ x: 9 * box, y: 10 * box }];
   let greenCount = 0, yellowCount = 0, redCount = 0;
 
   let food = randomPosition();
   let bonus = randomBonus();
-
-  document.addEventListener("keydown", (e) => {
-    if (e.code === "Space") {
-      e.preventDefault();
-      if (gameRunning) {
-        isPaused = !isPaused;
-        document.getElementById("pause-btn").innerText = isPaused ? "▶️ Reprendre" : "⏸ Pause";
-      }
-      return;
-    }
-
-    if (e.code === "Enter") {
-      if (!gameRunning) {
-        restartGame();
-      } else if (isPaused) {
-        isPaused = false;
-        document.getElementById("pause-btn").innerText = "⏸ Pause";
-      }
-      return;
-    }
-
-    if (!canChangeDirection || isPaused) return;
-
-    canChangeDirection = false;
-    if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
-    else if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
-    else if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
-    else if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
-  });
-
-  window.mobileMove = function (dir) {
-    if (isPaused) return;
-    const opposites = { LEFT: "RIGHT", RIGHT: "LEFT", UP: "DOWN", DOWN: "UP" };
-    if (direction !== opposites[dir]) {
-      direction = dir;
-      canChangeDirection = false;
-    }
-  };
 
   function randomPosition() {
     const max = Math.floor(canvas.width / box);
@@ -127,8 +93,7 @@ window.onload = async function () {
     ctx.fillStyle = "green";
     ctx.fillRect(food.x, food.y, box, box);
 
-    ctx.fillStyle =
-      bonus.type === "life" ? "red" : bonus.type === "double" ? "yellow" : "green";
+    ctx.fillStyle = bonus.type === "life" ? "red" : bonus.type === "double" ? "yellow" : "green";
     ctx.fillRect(bonus.x, bonus.y, box, box);
 
     let head = { x: snake[0].x, y: snake[0].y };
@@ -137,8 +102,7 @@ window.onload = async function () {
     if (direction === "UP") head.y -= box;
     if (direction === "DOWN") head.y += box;
 
-    const collision =
-      head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height ||
+    const collision = head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height ||
       snake.slice(1).some(p => p.x === head.x && p.y === head.y);
 
     if (collision) return endGame();
@@ -190,7 +154,10 @@ window.onload = async function () {
     snake = [{ x: 9 * box, y: 10 * box }];
     food = randomPosition();
     bonus = randomBonus();
-    score = 0; greenCount = 0; yellowCount = 0; redCount = 0;
+    score = 0;
+    greenCount = 0;
+    yellowCount = 0;
+    redCount = 0;
     direction = null;
     gameRunning = true;
     isPaused = false;
@@ -221,17 +188,57 @@ window.onload = async function () {
       });
   }
 
-  document.getElementById("rejouer-btn").addEventListener("click", restartGame);
+  // === CONTROLS ===
+  document.addEventListener("keydown", (e) => {
+    if (e.code === "Space") {
+      e.preventDefault();
+      if (gameRunning) {
+        isPaused = !isPaused;
+        document.getElementById("pause-btn").innerText = isPaused ? "▶️ Reprendre" : "⏸ Pause";
+      }
+      return;
+    }
 
+    if (e.code === "Enter") {
+      if (!gameRunning) restartGame();
+      else if (isPaused) {
+        isPaused = false;
+        document.getElementById("pause-btn").innerText = "⏸ Pause";
+      }
+      return;
+    }
+
+    if (!canChangeDirection || isPaused) return;
+    canChangeDirection = false;
+
+    if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+    else if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+    else if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+    else if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+  });
+
+  // 🎮 Touch mobile
+  window.mobileMove = function (dir) {
+    if (isPaused || !gameRunning) return;
+    const opposites = { LEFT: "RIGHT", RIGHT: "LEFT", UP: "DOWN", DOWN: "UP" };
+    if (direction !== opposites[dir]) {
+      direction = dir;
+      canChangeDirection = false;
+    }
+  };
+
+  document.getElementById("rejouer-btn").addEventListener("click", restartGame);
   document.getElementById("pause-btn").addEventListener("click", () => {
     isPaused = !isPaused;
     document.getElementById("pause-btn").innerText = isPaused ? "▶️ Reprendre" : "⏸ Pause";
   });
 
   afficherTopScores();
+  afficherAvis();
   game = setInterval(draw, 150);
 };
 
+// === UTILS ===
 async function getBestScoreForPseudo(pseudo) {
   try {
     const snapshot = await db.collection("snake_scores")
@@ -242,15 +249,11 @@ async function getBestScoreForPseudo(pseudo) {
 
     if (!snapshot.empty) {
       const data = snapshot.docs[0].data();
-      document.getElementById("best").innerText = `Best score : ${data.score}`;
       return data.score;
-    } else {
-      document.getElementById("best").innerText = `Best score : 0`;
-      return 0;
     }
+    return 0;
   } catch (e) {
     console.error("Erreur best score :", e.message);
-    document.getElementById("best").innerText = `Best score : 0`;
     return 0;
   }
 }
@@ -389,7 +392,5 @@ async function likerAvis(id) {
 window.onload = () => {
   afficherAvis();  // recharge les avis snake
 };
-
-
 
 
