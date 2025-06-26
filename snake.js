@@ -131,18 +131,22 @@ window.onload = async function () {
       snake.pop();
     }
 
-    if (head.x === bonus.x && head.y === bonus.y) {
-      if (bonus.type === "life") {
-        score += 3; redCount++;
-      } else if (bonus.type === "grow") {
-        score += 2; yellowCount++;
-        snake.push({ ...snake[snake.length - 1] });
-      } else if (bonus.type === "double") {
-        score += 2; yellowCount++;
-        for (let i = 0; i < 2; i++) snake.push({ ...snake[snake.length - 1] });
-      }
-      bonus = randomBonus();
-    }
+   if (head.x === bonus.x && head.y === bonus.y) {
+  if (bonus.type === "life") {
+    score += 3;
+    redCount++;
+    snake.push({ ...snake[snake.length - 1] }); // ajoute 1 bloc
+  } else if (bonus.type === "grow") {
+    score += 2;
+    yellowCount++;
+    snake.push({ ...snake[snake.length - 1] }); // maintenant 1 seul bloc
+  } else if (bonus.type === "double") {
+    score += 2;
+    yellowCount++;
+    snake.push({ ...snake[snake.length - 1] }); // bonus simple aussi
+  }
+  bonus = randomBonus();
+}
 
     snake.unshift(head);
     updateScoreDisplay();
