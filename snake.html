@@ -9,6 +9,7 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 </head>
 <body>
   <div class="container">
@@ -50,6 +51,27 @@
   </div>
 
   <script src="snake.js"></script>
+
+      <hr>
+<section id="avis-section">
+  <h2>📣 Avis sur le jeu Snake</h2>
+  <button id="connect-google">🔐 Se connecter avec Google</button>
+  <p id="user-status">Non connecté</p>
+
+  <div id="avis-form" style="display:none;">
+    <textarea id="avis-text" maxlength="500" placeholder="Votre avis... (max 500 caractères)"></textarea>
+    <select id="avis-note">
+      <option value="1">⭐</option>
+      <option value="2">⭐⭐</option>
+      <option value="3">⭐⭐⭐</option>
+      <option value="4">⭐⭐⭐⭐</option>
+      <option value="5" selected>⭐⭐⭐⭐⭐</option>
+    </select>
+    <button onclick="envoyerAvis()">Envoyer</button>
+  </div>
+
+  <div id="liste-avis"></div>
+</section>
 </body>
 </html>
 
