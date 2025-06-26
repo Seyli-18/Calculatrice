@@ -7,7 +7,8 @@
   <link rel="stylesheet" href="snake.css" />
 
   <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+ <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
@@ -48,6 +49,31 @@
     <h2>#🏆 Top 10</h2>
     <ol id="classement"></ol>
   </div>
+
+      <div id="auth-section">
+    <button id="login-btn">Se connecter avec Google</button>
+    <button id="logout-btn" style="display:none;">Se déconnecter</button>
+    <p id="utilisateur-connecte" style="margin-top:10px;"></p>
+  </div>
+
+       <h3>Laissez un avis</h3>
+  <div>
+    <textarea id="avis-text" maxlength="350" placeholder="Votre avis (max 350 caractères)."></textarea><br />
+    <label>Note :
+      <select id="etoiles">
+        <option value="1">⭐</option>
+        <option value="2">⭐⭐</option>
+        <option value="3">⭐⭐⭐</option>
+        <option value="4">⭐⭐⭐⭐</option>
+        <option value="5">⭐⭐⭐⭐⭐</option>
+      </select>
+    </label><br />
+    <button id="envoyer-btn">Envoyer votre avis</button>
+    <p id="attente-msg" style="color: orange; margin-top: 10px;"></p>
+  </div>
+
+  <div id="liste-avis"></div>
+
 
   <script src="snake.js"></script>
 </body>
