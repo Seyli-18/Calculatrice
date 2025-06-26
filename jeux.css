@@ -56,13 +56,20 @@ h1 {
   color: white;
 }
 
+body {
+  margin: 0;
+  padding: 0;
+}
+
 .version {
   position: fixed;
-  bottom: 5px;
+  bottom: 10px;
   right: 10px;
   font-size: 0.8em;
   color: gray;
   font-family: Arial, sans-serif;
+  text-align: right;
 }
+
 
 
