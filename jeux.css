@@ -56,3 +56,13 @@ h1 {
   color: white;
 }
 
+.version {
+  position: fixed;
+  bottom: 5px;
+  right: 10px;
+  font-size: 0.8em;
+  color: gray;
+  font-family: Arial, sans-serif;
+}
+
+
