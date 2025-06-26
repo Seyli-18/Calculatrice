@@ -154,3 +154,39 @@ canvas {
     gap: 25px;
   }
 }
+
+#avis-section {
+  margin: 40px auto;
+  padding: 20px;
+  max-width: 600px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 10px;
+  text-align: left;
+}
+
+#avis-form textarea {
+  width: 100%;
+  height: 80px;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  resize: none;
+}
+
+#avis-form select, #avis-form button {
+  padding: 8px;
+  font-size: 14px;
+  margin-right: 10px;
+}
+
+.avis {
+  background: #222;
+  padding: 10px;
+  border-radius: 6px;
+  margin-top: 15px;
+}
+
+.avis small {
+  color: #aaa;
+}
+
