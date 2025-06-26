@@ -6,7 +6,7 @@
   <title>Snake Deluxe</title>
   <link rel="stylesheet" href="snake.css" />
 
-  <!-- Firebase SDK -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -21,7 +21,6 @@
         <p><span class="fruit">🍋</span> x <span id="yellow-count">0</span> <em>+2 points</em></p>
         <p><span class="fruit">🍎</span> x <span id="red-count">0</span> <em>+3 points</em></p>
         <p id="best">Best score : 0</p>
-        <p>Utilisez les flèches du clavier si vous êtes sur PC</p>
         <button id="pause-btn">⏸ Pause</button>
       </div>
     </div>
@@ -57,9 +56,9 @@
     <p id="utilisateur-connecte"></p>
   </div>
 
-  <h3>Laissez un avis</h3>
-  <div>
-    <textarea id="avis-text" maxlength="500" placeholder="Votre avis (max 500 caractères)"></textarea><br />
+  <div id="avis-section">
+    <h3>Laissez un avis</h3>
+    <textarea id="avis-text" maxlength="500" placeholder="Votre avis (max 500 caractères)"></textarea><br>
     <label>Note :
       <select id="etoiles">
         <option value="1">⭐</option>
@@ -68,9 +67,9 @@
         <option value="4">⭐⭐⭐⭐</option>
         <option value="5">⭐⭐⭐⭐⭐</option>
       </select>
-    </label><br />
+    </label><br>
     <button id="envoyer-btn">Envoyer votre avis</button>
-    <p id="attente-msg" style="color: orange;"></p>
+    <p id="attente-msg"></p>
   </div>
 
   <div id="liste-avis"></div>
