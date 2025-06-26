@@ -1,4 +1,3 @@
-// === Firebase configuration ===
 const firebaseConfig = {
   apiKey: "AIzaSyCWSSYXHJNXcbFaJn6AapsEARKCTjhzqXs",
   authDomain: "monsitecalculatrice.firebaseapp.com",
@@ -12,21 +11,31 @@ const auth = firebase.auth();
 let utilisateur = null;
 let game, isPaused = false, gameRunning = true;
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCWSSYXHJNXcbFaJn6AapsEARKCTjhzqXs",
-  authDomain: "monsitecalculatrice.firebaseapp.com",
-  projectId: "monsitecalculatrice"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-let game, isPaused = false, gameRunning = true;
-
 window.addEventListener("keydown", function (e) {
-  const preventKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"];
-  if (preventKeys.includes(e.code)) e.preventDefault();
+  const keys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"];
+  if (keys.includes(e.code)) e.preventDefault();
 }, { passive: false });
+
+auth.onAuthStateChanged((user) => {
+  utilisateur = user;
+  document.getElementById("login-btn").style.display = user ? "none" : "inline-block";
+  document.getElementById("logout-btn").style.display = user ? "inline-block" : "none";
+  document.getElementById("utilisateur-connecte").innerText =
+    user ? `Connecté en tant que : ${user.displayName || user.email}` : "";
+});
+
+document.getElementById("login-btn").addEventListener("click", async () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try {
+    await auth.signInWithPopup(provider);
+  } catch (error) {
+    alert("Erreur de connexion Google.");
+  }
+});
+
+document.getElementById("logout-btn").addEventListener("click", () => {
+  auth.signOut();
+});
 
 window.onload = async function () {
   const canvas = document.getElementById("snake");
@@ -57,44 +66,6 @@ window.onload = async function () {
 
   let food = randomPosition();
   let bonus = randomBonus();
-
-  document.addEventListener("keydown", (e) => {
-    if (e.code === "Space") {
-      e.preventDefault();
-      if (gameRunning) {
-        isPaused = !isPaused;
-        document.getElementById("pause-btn").innerText = isPaused ? "▶️ Reprendre" : "⏸ Pause";
-      }
-      return;
-    }
-
-    if (e.code === "Enter") {
-      if (!gameRunning) {
-        restartGame();
-      } else if (isPaused) {
-        isPaused = false;
-        document.getElementById("pause-btn").innerText = "⏸ Pause";
-      }
-      return;
-    }
-
-    if (!canChangeDirection || isPaused) return;
-
-    canChangeDirection = false;
-    if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
-    else if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
-    else if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
-    else if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
-  });
-
-  window.mobileMove = function (dir) {
-    if (isPaused) return;
-    const opposites = { LEFT: "RIGHT", RIGHT: "LEFT", UP: "DOWN", DOWN: "UP" };
-    if (direction !== opposites[dir]) {
-      direction = dir;
-      canChangeDirection = false;
-    }
-  };
 
   function randomPosition() {
     const max = Math.floor(canvas.width / box);
@@ -199,7 +170,10 @@ window.onload = async function () {
     snake = [{ x: 9 * box, y: 10 * box }];
     food = randomPosition();
     bonus = randomBonus();
-    score = 0; greenCount = 0; yellowCount = 0; redCount = 0;
+    score = 0;
+    greenCount = 0;
+    yellowCount = 0;
+    redCount = 0;
     direction = null;
     gameRunning = true;
     isPaused = false;
@@ -230,164 +204,141 @@ window.onload = async function () {
       });
   }
 
-  document.getElementById("rejouer-btn").addEventListener("click", restartGame);
+  document.addEventListener("keydown", (e) => {
+    if (e.code === "Space") {
+      e.preventDefault();
+      if (gameRunning) {
+        isPaused = !isPaused;
+        document.getElementById("pause-btn").innerText = isPaused ? "▶️ Reprendre" : "⏸ Pause";
+      }
+      return;
+    }
 
+    if (e.code === "Enter") {
+      if (!gameRunning) restartGame();
+      else if (isPaused) {
+        isPaused = false;
+        document.getElementById("pause-btn").innerText = "⏸ Pause";
+      }
+      return;
+    }
+
+    if (!canChangeDirection || isPaused) return;
+    canChangeDirection = false;
+
+    if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+    else if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+    else if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+    else if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+  });
+
+  window.mobileMove = function (dir) {
+    if (!gameRunning || isPaused) return;
+    const opposites = { LEFT: "RIGHT", RIGHT: "LEFT", UP: "DOWN", DOWN: "UP" };
+    if (direction !== opposites[dir]) {
+      direction = dir;
+      canChangeDirection = false;
+    }
+  };
+
+  document.getElementById("rejouer-btn").addEventListener("click", restartGame);
   document.getElementById("pause-btn").addEventListener("click", () => {
     isPaused = !isPaused;
     document.getElementById("pause-btn").innerText = isPaused ? "▶️ Reprendre" : "⏸ Pause";
   });
 
   afficherTopScores();
+  afficherAvis();
   game = setInterval(draw, 150);
 };
 
 async function getBestScoreForPseudo(pseudo) {
-  try {
-    const snapshot = await db.collection("snake_scores")
-      .where("pseudo", "==", pseudo)
-      .orderBy("score", "desc")
-      .limit(1)
-      .get();
+  const snap = await db.collection("snake_scores")
+    .where("pseudo", "==", pseudo)
+    .orderBy("score", "desc")
+    .limit(1)
+    .get();
 
-    if (!snapshot.empty) {
-      const data = snapshot.docs[0].data();
-      document.getElementById("best").innerText = `Best score : ${data.score}`;
-      return data.score;
-    } else {
-      document.getElementById("best").innerText = `Best score : 0`;
-      return 0;
-    }
-  } catch (e) {
-    console.error("Erreur best score :", e.message);
-    document.getElementById("best").innerText = `Best score : 0`;
-    return 0;
-  }
+  if (!snap.empty) return snap.docs[0].data().score;
+  return 0;
 }
 
-
-// AUTHENTIFICATION GOOGLE
-document.getElementById("login-btn").addEventListener("click", async () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  try {
-    await auth.signInWithPopup(provider);
-  } catch (error) {
-    alert("Erreur de connexion : " + error.message);
-  }
-});
-
-document.getElementById("logout-btn").addEventListener("click", async () => {
-  await auth.signOut();
-});
-
-auth.onAuthStateChanged((user) => {
-  utilisateur = user;
-  document.getElementById("login-btn").style.display = user ? "none" : "inline-block";
-  document.getElementById("logout-btn").style.display = user ? "inline-block" : "none";
-  document.getElementById("utilisateur-connecte").innerText = user
-    ? `Connecté en tant que : ${user.displayName || user.email}`
-    : "";
-});
-
-// ENVOYER UN AVIS POUR SNAKE UNIQUEMENT
-document.getElementById("envoyer-btn").addEventListener("click", envoyerAvis);
-
+// === AVIS ===
 async function envoyerAvis() {
   const msg = document.getElementById("attente-msg");
   msg.innerText = "";
 
-  if (!utilisateur) {
-    alert("Veuillez vous connecter pour publier un avis.");
-    return;
-  }
+  if (!utilisateur) return alert("Connectez-vous pour publier un avis.");
 
   const texte = document.getElementById("avis-text").value.trim();
   const note = parseInt(document.getElementById("etoiles").value);
 
-  if (!texte || texte.length > 350) {
-    alert("Votre avis doit faire entre 1 et 350 caractères.");
-    return;
-  }
+  if (!texte || texte.length > 500) return alert("Max 500 caractères.");
 
-  const now = new Date();
-
-  // Vérifie délai 1h
-  const ref = db.collection("snake_avis")  // ✅ CHANGÉ ICI
-    .where("userId", "==", utilisateur.uid)
+  const lastSnap = await db.collection("snake_avis")
+    .where("uid", "==", utilisateur.uid)
     .orderBy("date", "desc")
-    .limit(1);
+    .limit(1)
+    .get();
 
-  const snap = await ref.get();
-  if (!snap.empty) {
-    const dernier = snap.docs[0].data().date.toDate();
-    const diffMs = now - dernier;
-    if (diffMs < 3600000) {
-      const minutesRestantes = Math.ceil((3600000 - diffMs) / 60000);
-      msg.innerText = `⏳ Vous devez attendre ${minutesRestantes} minute(s) avant de poster un nouvel avis.`;
+  if (!lastSnap.empty) {
+    const lastDate = lastSnap.docs[0].data().date.toDate();
+    const diff = new Date() - lastDate;
+    if (diff < 3600000) {
+      const mins = Math.ceil((3600000 - diff) / 60000);
+      msg.innerText = `⏳ Attendez ${mins} min avant un nouvel avis.`;
       return;
     }
   }
 
-  await db.collection("snake_avis").add({   // ✅ CHANGÉ ICI
+  await db.collection("snake_avis").add({
+    uid: utilisateur.uid,
+    pseudo: utilisateur.displayName || utilisateur.email,
+    photo: utilisateur.photoURL,
     texte,
     note,
     likes: 0,
-    date: now,
-    userId: utilisateur.uid,
-    userName: utilisateur.displayName || utilisateur.email,
-    userEmail: utilisateur.email,
-    userPhoto: utilisateur.photoURL || ""
+    date: new Date()
   });
 
   document.getElementById("avis-text").value = "";
-  msg.innerText = "✅ Avis posté avec succès.";
+  afficherAvis();
 }
 
-// AFFICHER LES AVIS DU JEU SNAKE
-function afficherAvis() {
+async function afficherAvis() {
   const container = document.getElementById("liste-avis");
+  container.innerHTML = "";
 
-  db.collection("snake_avis").orderBy("likes", "desc").onSnapshot((snapshot) => {
-    container.innerHTML = "<h2>📣 Avis des utilisateurs</h2>";
-    snapshot.forEach((docSnap) => {
-      const avis = docSnap.data();
-      const date = avis.date.toDate();
-      const dateStr = date.toLocaleDateString();
-      const heureStr = date.toLocaleTimeString();
+  const snapshot = await db.collection("snake_avis")
+    .orderBy("likes", "desc").get();
 
-      const nom = avis.userName || avis.userEmail || "Utilisateur inconnu";
-      const photo = avis.userPhoto || "";
+  snapshot.forEach(doc => {
+    const avis = doc.data();
+    const date = avis.date?.toDate?.() || new Date();
 
-      const div = document.createElement("div");
-      div.className = "avis";
-      div.innerHTML = `
-        <div class="avis-header">
-          ${photo ? `<img src="${photo}" alt="profil">` : ""}
-          <strong>${nom}</strong>
-        </div>
-        <div>${"⭐".repeat(avis.note)}</div>
-        <p>${avis.texte}</p>
-        <p><small>Posté le ${dateStr} à ${heureStr}</small></p>
-        <button class="like-btn" onclick="likerAvis('${docSnap.id}')">❤️ ${avis.likes || 0}</button>
-      `;
-      container.appendChild(div);
-    });
+    const div = document.createElement("div");
+    div.className = "avis";
+
+    div.innerHTML = `
+      <div class="avis-header">
+        ${avis.photo ? `<img src="${avis.photo}" alt="profil">` : ""}
+        <strong>${avis.pseudo}</strong>
+      </div>
+      <div>${"⭐".repeat(avis.note)}</div>
+      <p>${avis.texte}</p>
+      <p><small>Posté le ${date.toLocaleDateString()} à ${date.toLocaleTimeString()}</small></p>
+      <button class="like-btn" onclick="likerAvis('${doc.id}')">❤️ ${avis.likes || 0}</button>
+    `;
+    container.appendChild(div);
   });
 }
 
-// LIKE D'UN AVIS (1 seul par utilisateur)
 async function likerAvis(id) {
-  if (!utilisateur) {
-    alert("Veuillez vous connecter pour liker un avis.");
-    return;
-  }
+  if (!utilisateur) return alert("Connectez-vous pour liker.");
 
-  const likeRef = db.collection("snake_avis").doc(id).collection("likes").doc(utilisateur.uid); // ✅
-  const snapshot = await likeRef.get();
-
-  if (snapshot.exists) {
-    alert("Vous avez déjà liké cet avis.");
-    return;
-  }
+  const likeRef = db.collection("snake_avis").doc(id).collection("likes").doc(utilisateur.uid);
+  const snap = await likeRef.get();
+  if (snap.exists) return alert("Déjà liké !");
 
   await likeRef.set({ liked: true });
   await db.collection("snake_avis").doc(id).update({
@@ -395,9 +346,4 @@ async function likerAvis(id) {
   });
 }
 
-// AUTO-AFFICHE LES AVIS À CHARGEMENT
-window.onload = () => {
-  afficherAvis();  // recharge les avis snake
-};
-
-
+document.getElementById("envoyer-btn").addEventListener("click", envoyerAvis);
