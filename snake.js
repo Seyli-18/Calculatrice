@@ -105,8 +105,8 @@ window.onload = async function () {
   }
 
   function updateScoreDisplay() {
-    document.getElementById("score").innerText = `Score : ${score}`;
-    document.getElementById("best").innerText = `Best score : ${bestScore}`;
+    document.getElementById("score").innerText = Score : ${score};
+    document.getElementById("best").innerText = Best score : ${bestScore};
     document.getElementById("green-count").innerText = greenCount;
     document.getElementById("yellow-count").innerText = yellowCount;
     document.getElementById("red-count").innerText = redCount;
@@ -168,13 +168,13 @@ window.onload = async function () {
     clearInterval(game);
     gameRunning = false;
     document.getElementById("game-over").style.display = "block";
-    document.getElementById("final-score").innerText = `Score : ${score}`;
+    document.getElementById("final-score").innerText = Score : ${score};
 
     await db.collection("snake_scores").add({ pseudo, score, date: new Date() });
 
     if (score > bestScore) {
       bestScore = score;
-      document.getElementById("best").innerText = `Best score : ${bestScore}`;
+      document.getElementById("best").innerText = Best score : ${bestScore};
     }
 
     afficherTopScores();
@@ -211,7 +211,7 @@ window.onload = async function () {
       .slice(0, 10)
       .forEach(([pseudo, score], i) => {
         const li = document.createElement("li");
-        li.textContent = `#${i + 1} - ${pseudo} : ${score}`;
+        li.textContent = #${i + 1} - ${pseudo} : ${score};
         list.appendChild(li);
       });
   }
@@ -237,15 +237,15 @@ async function getBestScoreForPseudo(pseudo) {
 
     if (!snapshot.empty) {
       const data = snapshot.docs[0].data();
-      document.getElementById("best").innerText = `Best score : ${data.score}`;
+      document.getElementById("best").innerText = Best score : ${data.score};
       return data.score;
     } else {
-      document.getElementById("best").innerText = `Best score : 0`;
+      document.getElementById("best").innerText = Best score : 0;
       return 0;
     }
   } catch (e) {
     console.error("Erreur best score :", e.message);
-    document.getElementById("best").innerText = `Best score : 0`;
+    document.getElementById("best").innerText = Best score : 0;
     return 0;
   }
 }
@@ -347,3 +347,98 @@ async function likeAvis(id) {
   afficherAvis();
 }
 
+let currentUser = null;
+
+document.getElementById("connect-google").addEventListener("click", async () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try {
+    const result = await firebase.auth().signInWithPopup(provider);
+    currentUser = result.user;
+    document.getElementById("user-status").innerText = `Connecté en tant que : ${currentUser.displayName || currentUser.email}`;
+    document.getElementById("avis-form").style.display = "block";
+    afficherAvis();
+  } catch (error) {
+    alert("Connexion Google échouée.");
+    console.error(error);
+  }
+});
+
+async function envoyerAvis() {
+  if (!currentUser) return alert("Connectez-vous pour poster un avis.");
+  const texte = document.getElementById("avis-text").value.trim();
+  const note = parseInt(document.getElementById("avis-note").value);
+
+  if (!texte || texte.length > 500) return alert("Avis vide ou trop long.");
+
+  const uid = currentUser.uid;
+
+  const snapshot = await db.collection("snake_avis")
+    .where("uid", "==", uid)
+    .orderBy("date", "desc")
+    .limit(1)
+    .get();
+
+  if (!snapshot.empty) {
+    const lastAvis = snapshot.docs[0].data().date.toDate();
+    const now = new Date();
+    const diff = (now - lastAvis) / (1000 * 60);
+    if (diff < 60) {
+      return alert(`Veuillez attendre ${Math.ceil(60 - diff)} minutes avant un nouvel avis.`);
+    }
+  }
+
+  await db.collection("snake_avis").add({
+    uid,
+    pseudo: currentUser.displayName || currentUser.email,
+    texte,
+    note,
+    date: new Date(),
+    likes: 0,
+    likers: []
+  });
+
+  document.getElementById("avis-text").value = "";
+  afficherAvis();
+}
+
+async function afficherAvis() {
+  const container = document.getElementById("liste-avis");
+  container.innerHTML = "";
+
+  const snapshot = await db.collection("snake_avis").orderBy("likes", "desc").get();
+
+  snapshot.forEach(doc => {
+    const avis = doc.data();
+    const div = document.createElement("div");
+    div.className = "avis";
+
+    const date = new Date(avis.date.toDate()).toLocaleString();
+    const hasLiked = currentUser && avis.likers?.includes(currentUser.uid);
+
+    div.innerHTML = `
+      <p><strong>${avis.pseudo}</strong> - ${"⭐".repeat(avis.note)}</p>
+      <p>${avis.texte}</p>
+      <p><small>${date}</small></p>
+      <p>❤️ ${avis.likes} <button ${hasLiked ? "disabled" : ""} onclick="likeAvis('${doc.id}')">❤️</button></p>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+async function likeAvis(id) {
+  if (!currentUser) return alert("Connectez-vous pour liker.");
+
+  const ref = db.collection("snake_avis").doc(id);
+  const snap = await ref.get();
+  const data = snap.data();
+
+  if (data.likers?.includes(currentUser.uid)) return;
+
+  await ref.update({
+    likes: firebase.firestore.FieldValue.increment(1),
+    likers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
+  });
+
+  afficherAvis();
+}
