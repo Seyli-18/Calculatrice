@@ -249,3 +249,101 @@ async function getBestScoreForPseudo(pseudo) {
     return 0;
   }
 }
+
+let currentUser = null;
+
+// Connexion Google
+document.getElementById("connect-google").addEventListener("click", async () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try {
+    const result = await firebase.auth().signInWithPopup(provider);
+    currentUser = result.user;
+    document.getElementById("user-status").innerText = `Connecté en tant que : ${currentUser.displayName || currentUser.email}`;
+    document.getElementById("avis-form").style.display = "block";
+    afficherAvis();
+  } catch (e) {
+    alert("Échec de connexion");
+  }
+});
+
+async function envoyerAvis() {
+  if (!currentUser) return alert("Connectez-vous pour poster un avis.");
+  const texte = document.getElementById("avis-text").value.trim();
+  const note = parseInt(document.getElementById("avis-note").value);
+
+  if (!texte || texte.length > 500) return alert("Avis vide ou trop long.");
+
+  const uid = currentUser.uid;
+
+  const snapshot = await db.collection("snake_avis")
+    .where("uid", "==", uid)
+    .orderBy("date", "desc")
+    .limit(1)
+    .get();
+
+  if (!snapshot.empty) {
+    const lastAvis = snapshot.docs[0].data().date.toDate();
+    const now = new Date();
+    const diff = (now - lastAvis) / (1000 * 60); // minutes
+    if (diff < 60) {
+      const remaining = Math.ceil(60 - diff);
+      return alert(`Veuillez attendre ${remaining} minute(s) avant de poster un nouvel avis.`);
+    }
+  }
+
+  await db.collection("snake_avis").add({
+    uid,
+    pseudo: currentUser.displayName || currentUser.email,
+    texte,
+    note,
+    date: new Date(),
+    likes: 0,
+    likers: []
+  });
+
+  document.getElementById("avis-text").value = "";
+  afficherAvis();
+}
+
+async function afficherAvis() {
+  const container = document.getElementById("liste-avis");
+  container.innerHTML = "";
+  const snapshot = await db.collection("snake_avis").orderBy("likes", "desc").get();
+
+  snapshot.forEach(doc => {
+    const avis = doc.data();
+    const div = document.createElement("div");
+    div.className = "avis";
+
+    const date = new Date(avis.date.toDate()).toLocaleString();
+
+    const hasLiked = currentUser && avis.likers && avis.likers.includes(currentUser.uid);
+
+    div.innerHTML = `
+      <p><strong>${avis.pseudo}</strong> - ${"⭐".repeat(avis.note)}</p>
+      <p>${avis.texte}</p>
+      <p><small>${date}</small></p>
+      <p>❤️ ${avis.likes} <button ${hasLiked ? "disabled" : ""} onclick="likeAvis('${doc.id}')">Like</button></p>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+async function likeAvis(id) {
+  if (!currentUser) return alert("Connectez-vous pour liker.");
+
+  const ref = db.collection("snake_avis").doc(id);
+  const docSnap = await ref.get();
+  const data = docSnap.data();
+
+  if (data.likers?.includes(currentUser.uid)) return;
+
+  await ref.update({
+    likes: firebase.firestore.FieldValue.increment(1),
+    likers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
+  });
+
+  afficherAvis();
+}
+
