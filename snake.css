@@ -1,109 +1,91 @@
 body {
+  margin: 0;
+  padding: 0;
   background-color: #111;
   color: white;
   font-family: Arial, sans-serif;
   text-align: center;
+  overflow-x: hidden;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 20px;
-  margin: 0;
 }
 
 canvas {
-  background: black;
+  background-color: black;
   border: 2px solid white;
-}
-
-.sidebar {
   margin-bottom: 20px;
 }
 
 #score, #best {
   font-size: 18px;
-  margin: 5px 0;
-}
-
-.fruit {
-  font-size: 20px;
 }
 
 .touch-controls {
-  margin-top: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  margin-top: 10px;
 }
 
 .touch-controls .horizontal {
   display: flex;
-  gap: 20px;
+  justify-content: center;
+  gap: 10px;
 }
 
 .touch-controls button {
   font-size: 24px;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 12px 18px;
   border: none;
   background-color: #2ecc71;
   color: white;
+  border-radius: 6px;
   cursor: pointer;
 }
 
-.hidden {
-  display: none !important;
+@media (min-width: 768px) {
+  .touch-controls {
+    display: none;
+  }
 }
 
 #game-over {
   display: none;
-  position: absolute;
-  background: rgba(0,0,0,0.9);
+  background: rgba(0,0,0,0.8);
   padding: 20px;
+  border-radius: 8px;
   border: 2px solid white;
-  border-radius: 10px;
+  position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   z-index: 10;
 }
 
-textarea {
-  width: 300px;
-  height: 80px;
-  padding: 10px;
-  font-size: 16px;
-  border-radius: 6px;
+#top-scores {
+  margin-top: 30px;
 }
 
-.avis-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.avis-header img {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  object-fit: cover;
+.fruit {
+  font-size: 22px;
 }
 
 .avis {
-  background: rgba(255, 255, 255, 0.08);
-  padding: 12px;
-  border-radius: 8px;
+  background: #eee;
+  padding: 10px;
   margin: 10px auto;
+  border-radius: 8px;
+  color: #000;
   max-width: 500px;
-  position: relative;
-  text-align: left;
 }
 
-.like-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  color: gold;
-  font-size: 18px;
-  border: none;
-  cursor: pointer;
+.avis-header img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
 }
-
