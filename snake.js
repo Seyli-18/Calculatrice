@@ -255,7 +255,7 @@ async function getBestScoreForPseudo(pseudo) {
   }
 }
 
-// Auth Google
+// AUTHENTIFICATION GOOGLE
 document.getElementById("login-btn").addEventListener("click", async () => {
   const provider = new firebase.auth.GoogleAuthProvider();
   try {
@@ -278,7 +278,7 @@ auth.onAuthStateChanged((user) => {
     : "";
 });
 
-// Envoyer un avis
+// ENVOYER UN AVIS POUR SNAKE UNIQUEMENT
 document.getElementById("envoyer-btn").addEventListener("click", envoyerAvis);
 
 async function envoyerAvis() {
@@ -298,10 +298,10 @@ async function envoyerAvis() {
     return;
   }
 
- const now = new Date();
+  const now = new Date();
 
   // Vérifie délai 1h
-  const ref = db.collection("avis")
+  const ref = db.collection("snake_avis")  // ✅ CHANGÉ ICI
     .where("userId", "==", utilisateur.uid)
     .orderBy("date", "desc")
     .limit(1);
@@ -317,27 +317,26 @@ async function envoyerAvis() {
     }
   }
 
-  const user = auth.currentUser;
-  await db.collection("avis").add({
+  await db.collection("snake_avis").add({   // ✅ CHANGÉ ICI
     texte,
     note,
     likes: 0,
     date: now,
-    userId: user.uid,
-    userName: user.displayName || user.email,
-    userEmail: user.email,
-    userPhoto: user.photoURL || ""
+    userId: utilisateur.uid,
+    userName: utilisateur.displayName || utilisateur.email,
+    userEmail: utilisateur.email,
+    userPhoto: utilisateur.photoURL || ""
   });
 
   document.getElementById("avis-text").value = "";
   msg.innerText = "✅ Avis posté avec succès.";
 }
 
-// Afficher les avis
+// AFFICHER LES AVIS DU JEU SNAKE
 function afficherAvis() {
   const container = document.getElementById("liste-avis");
 
-  db.collection("avis").orderBy("likes", "desc").onSnapshot((snapshot) => {
+  db.collection("snake_avis").orderBy("likes", "desc").onSnapshot((snapshot) => {
     container.innerHTML = "<h2>📣 Avis des utilisateurs</h2>";
     snapshot.forEach((docSnap) => {
       const avis = docSnap.data();
@@ -365,14 +364,14 @@ function afficherAvis() {
   });
 }
 
-// Like
+// LIKE D'UN AVIS (1 seul par utilisateur)
 async function likerAvis(id) {
   if (!utilisateur) {
     alert("Veuillez vous connecter pour liker un avis.");
     return;
   }
 
-  const likeRef = db.collection("avis").doc(id).collection("likes").doc(utilisateur.uid);
+  const likeRef = db.collection("snake_avis").doc(id).collection("likes").doc(utilisateur.uid); // ✅
   const snapshot = await likeRef.get();
 
   if (snapshot.exists) {
@@ -381,21 +380,16 @@ async function likerAvis(id) {
   }
 
   await likeRef.set({ liked: true });
-  await db.collection("avis").doc(id).update({
+  await db.collection("snake_avis").doc(id).update({
     likes: firebase.firestore.FieldValue.increment(1)
   });
 }
 
-// Rendre global
-window.ajouterChiffre = ajouterChiffre;
-window.ajouterOperateur = ajouterOperateur;
-window.calculer = calculer;
-window.effacer = effacer;
-window.afficherAvis = afficherAvis;
-window.likerAvis = likerAvis;
+// AUTO-AFFICHE LES AVIS À CHARGEMENT
+window.onload = () => {
+  afficherAvis();  // recharge les avis snake
+};
 
-// Démarrer
-window.onload = afficherAvis;
 
 
 
