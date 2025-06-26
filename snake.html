@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="snake.css" />
 
   <!-- Firebase SDK -->
- <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
@@ -17,25 +17,26 @@
       <h2>🎮 Joueur : <span id="pseudo"></span></h2>
       <p id="score">Ton score : 0</p>
       <div id="fruit-stats">
-      <p><span class="fruit">🍏</span> x <span id="green-count">0</span> <em>+1 point</em></p>
-      <p><span class="fruit">🍋</span> x <span id="yellow-count">0</span> <em>+2 points</em></p>
-      <p><span class="fruit">🍎</span> x <span id="red-count">0</span> <em>+3 points</em></p>
-      <div> 
-        <p id="best">Best score : 0</p>                                             <p>Utilisez les fleches de votre clavier si vous êtes sur pc</p>
-      <button id="pause-btn">⏸ Pause</button>
+        <p><span class="fruit">🍏</span> x <span id="green-count">0</span> <em>+1 point</em></p>
+        <p><span class="fruit">🍋</span> x <span id="yellow-count">0</span> <em>+2 points</em></p>
+        <p><span class="fruit">🍎</span> x <span id="red-count">0</span> <em>+3 points</em></p>
+        <p id="best">Best score : 0</p>
+        <p>Utilisez les flèches du clavier si vous êtes sur PC</p>
+        <button id="pause-btn">⏸ Pause</button>
+      </div>
     </div>
 
     <div class="game-zone">
       <canvas id="snake" width="400" height="400"></canvas>
 
-     <div class="touch-controls">
-  <button onclick="mobileMove('UP')">⬆️</button>
-  <div class="horizontal">
-    <button onclick="mobileMove('LEFT')">⬅️</button>
-    <button onclick="mobileMove('DOWN')">⬇️</button>
-    <button onclick="mobileMove('RIGHT')">➡️</button>
-  </div>
-</div>
+      <div class="touch-controls">
+        <button onclick="mobileMove('UP')">⬆️</button>
+        <div class="horizontal">
+          <button onclick="mobileMove('LEFT')">⬅️</button>
+          <button onclick="mobileMove('DOWN')">⬇️</button>
+          <button onclick="mobileMove('RIGHT')">➡️</button>
+        </div>
+      </div>
 
       <div id="game-over">
         <h2>💀 Game Over !</h2>
@@ -50,15 +51,15 @@
     <ol id="classement"></ol>
   </div>
 
-      <div id="auth-section">
+  <div id="auth-section">
     <button id="login-btn">Se connecter avec Google</button>
     <button id="logout-btn" style="display:none;">Se déconnecter</button>
-    <p id="utilisateur-connecte" style="margin-top:10px;"></p>
+    <p id="utilisateur-connecte"></p>
   </div>
 
-       <h3>Laissez un avis</h3>
+  <h3>Laissez un avis</h3>
   <div>
-    <textarea id="avis-text" maxlength="350" placeholder="Votre avis (max 350 caractères)."></textarea><br />
+    <textarea id="avis-text" maxlength="500" placeholder="Votre avis (max 500 caractères)"></textarea><br />
     <label>Note :
       <select id="etoiles">
         <option value="1">⭐</option>
@@ -69,13 +70,11 @@
       </select>
     </label><br />
     <button id="envoyer-btn">Envoyer votre avis</button>
-    <p id="attente-msg" style="color: orange; margin-top: 10px;"></p>
+    <p id="attente-msg" style="color: orange;"></p>
   </div>
 
   <div id="liste-avis"></div>
 
-
   <script src="snake.js"></script>
 </body>
 </html>
-
