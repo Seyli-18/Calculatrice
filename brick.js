@@ -194,6 +194,10 @@ async function getBestScore() {
   if (!snap.empty) {
     bestScore = snap.docs[0].data().score;
     document.getElementById("best").textContent = `Best score : ${bestScore}`;
+    localStorage.setItem(`brick_best_${pseudo}`, bestScore); // 🔐 sauvegarde locale
+  } else {
+    bestScore = parseInt(localStorage.getItem(`brick_best_${pseudo}`)) || 0;
+    document.getElementById("best").textContent = `Best score : ${bestScore}`;
   }
 }
 
