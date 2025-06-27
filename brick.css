@@ -94,3 +94,28 @@ canvas {
 #auth-section {
   margin: 20px 0;
 }
+
+/* Contrôles mobile */
+#mobile-controls {
+  margin: 15px 0;
+  display: none;
+  justify-content: center;
+  gap: 30px;
+}
+
+#mobile-controls button {
+  font-size: 40px;
+  padding: 15px 25px;
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Afficher uniquement sur petits écrans */
+@media (max-width: 768px) {
+  #mobile-controls {
+    display: flex;
+  }
+}
