@@ -360,9 +360,8 @@ window.onload = () => {
   draw();
 };
 
-// 🔁 Rejouer
-document.getElementById("rejouer-btn")?.addEventListener("click", () => {
-  location.reload();
+document.getElementById("rejouer-btn").addEventListener("click", () => {
+  resetGame(); // fonction déjà présente à la fin de ton script
 });
 
 function resetGame() {
