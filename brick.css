@@ -11,4 +11,21 @@ canvas {
   border: 2px solid white;
   display: block;
   margin: 20px auto;
+  touch-action: none;
 }
+
+#game-over {
+  display: none;
+  background: rgba(0,0,0,0.8);
+  padding: 20px;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
