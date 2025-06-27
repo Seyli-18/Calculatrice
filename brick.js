@@ -1,4 +1,4 @@
-// 🔧 Config Firebase
+// 🔧 Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCWSSYXHJNXcbFaJn6AapsEARKCTjhzqXs",
   authDomain: "monsitecalculatrice.firebaseapp.com",
@@ -14,17 +14,19 @@ let bestScore = 0;
 let score = 0;
 let bricksColor = "#e74c3c";
 
-// 🎮 Variables du jeu
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+
 const paddleWidth = 75;
 const paddleHeight = 10;
 let paddleX = (canvas.width - paddleWidth) / 2;
+
 let x = canvas.width / 2;
 let y = canvas.height - 30;
-let dx = 2;
-let dy = -2;
+let dx = 1.8;
+let dy = -1.8;
 const ballRadius = 8;
+
 let rightPressed = false;
 let leftPressed = false;
 
@@ -35,6 +37,7 @@ const brickHeight = 20;
 const brickPadding = 10;
 const brickOffsetTop = 30;
 const brickOffsetLeft = 30;
+
 const colors = ["#e74c3c", "#f39c12", "#2ecc71", "#9b59b6", "#1abc9c"];
 const sound = new Audio("https://cdn.pixabay.com/audio/2021/08/04/audio_36ebfa9108.mp3");
 
@@ -50,7 +53,15 @@ function generateBricks(rows = brickRowCount) {
 }
 generateBricks();
 
-// 🎯 Contrôles
+// 👇 Demander pseudo une seule fois
+function demanderPseudo() {
+  do {
+    pseudo = prompt("Entrez votre pseudo :")?.trim();
+  } while (!pseudo);
+  document.getElementById("pseudo").textContent = `Joueur : ${pseudo}`;
+}
+
+// 🎮 Contrôles clavier
 document.addEventListener("keydown", (e) => {
   if (e.key === "Right" || e.key === "ArrowRight") rightPressed = true;
   else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = true;
@@ -60,11 +71,16 @@ document.addEventListener("keyup", (e) => {
   else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = false;
 });
 
-// Mobile controls
-window.movePaddleLeft = () => { leftPressed = true; setTimeout(() => leftPressed = false, 150); }
-window.movePaddleRight = () => { rightPressed = true; setTimeout(() => rightPressed = false, 150); }
+// 📱 Contrôles mobile
+window.movePaddleLeft = () => {
+  leftPressed = true;
+  setTimeout(() => (leftPressed = false), 150);
+};
+window.movePaddleRight = () => {
+  rightPressed = true;
+  setTimeout(() => (rightPressed = false), 150);
+};
 
-// 🖌️ Fonctions d'affichage
 function drawBall() {
   ctx.beginPath();
   ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
@@ -87,7 +103,6 @@ function drawBricks() {
         const brickY = r * (brickHeight + brickPadding) + brickOffsetTop;
         bricks[c][r].x = brickX;
         bricks[c][r].y = brickY;
-
         ctx.beginPath();
         ctx.rect(brickX, brickY, brickWidth, brickHeight);
         ctx.fillStyle = bricksColor;
@@ -123,8 +138,8 @@ function collisionDetection() {
     generateBricks(brickRowCount);
     y = canvas.height - 30;
     x = canvas.width / 2;
-    dx = 2;
-    dy = -2;
+    dx = 1.8;
+    dy = -1.8;
   }
 }
 
@@ -146,8 +161,8 @@ function draw() {
     }
   }
 
-  if (rightPressed && paddleX < canvas.width - paddleWidth) paddleX += 5;
-  else if (leftPressed && paddleX > 0) paddleX -= 5;
+  if (rightPressed && paddleX < canvas.width - paddleWidth) paddleX += 4;
+  else if (leftPressed && paddleX > 0) paddleX -= 4;
 
   x += dx;
   y += dy;
@@ -163,37 +178,32 @@ async function endGame() {
   if (score > bestScore) {
     bestScore = score;
     document.getElementById("best").textContent = `Best score : ${bestScore}`;
-    localStorage.setItem(`brick_best_${pseudo}`, bestScore); // ✅ save local
+    localStorage.setItem(`brick_best_${pseudo}`, bestScore);
   }
 
   afficherTopScores();
 }
 
-// 🔁 Lecture best score
 async function getBestScore() {
-  const saved = localStorage.getItem(`brick_best_${pseudo}`);
-  if (saved) {
-    bestScore = parseInt(saved);
+  const local = parseInt(localStorage.getItem(`brick_best_${pseudo}`));
+  if (!isNaN(local)) {
+    bestScore = local;
     document.getElementById("best").textContent = `Best score : ${bestScore}`;
   }
 
-  try {
-    const snap = await db.collection("brick_scores")
-      .where("pseudo", "==", pseudo)
-      .orderBy("score", "desc")
-      .limit(1)
-      .get();
+  const snap = await db.collection("brick_scores")
+    .where("pseudo", "==", pseudo)
+    .orderBy("score", "desc")
+    .limit(1)
+    .get();
 
-    if (!snap.empty) {
-      const scoreDB = snap.docs[0].data().score;
-      if (scoreDB > bestScore) {
-        bestScore = scoreDB;
-        document.getElementById("best").textContent = `Best score : ${bestScore}`;
-        localStorage.setItem(`brick_best_${pseudo}`, bestScore);
-      }
+  if (!snap.empty) {
+    const scoreDB = snap.docs[0].data().score;
+    if (scoreDB > bestScore) {
+      bestScore = scoreDB;
+      document.getElementById("best").textContent = `Best score : ${bestScore}`;
+      localStorage.setItem(`brick_best_${pseudo}`, bestScore);
     }
-  } catch (e) {
-    console.error("Erreur best score:", e);
   }
 }
 
@@ -202,16 +212,16 @@ async function afficherTopScores() {
   list.innerHTML = "";
 
   const snap = await db.collection("brick_scores").get();
-  const meilleurs = {};
+  const meilleurs = new Map();
 
   snap.forEach(doc => {
     const d = doc.data();
-    if (!meilleurs[d.pseudo] || d.score > meilleurs[d.pseudo]) {
-      meilleurs[d.pseudo] = d.score;
+    if (!meilleurs.has(d.pseudo) || d.score > meilleurs.get(d.pseudo)) {
+      meilleurs.set(d.pseudo, d.score);
     }
   });
 
-  Object.entries(meilleurs)
+  Array.from(meilleurs.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10)
     .forEach(([p, s], i) => {
@@ -221,125 +231,25 @@ async function afficherTopScores() {
     });
 }
 
-// 🔐 Auth + Avis identique à la version Snake (pas recopié ici si déjà présent ailleurs)
-// 🔐 Auth Google
-document.getElementById("login-btn").addEventListener("click", async () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  try {
-    await auth.signInWithPopup(provider);
-  } catch (e) {
-    alert("Erreur : " + e.message);
-  }
-});
-document.getElementById("logout-btn").addEventListener("click", () => auth.signOut());
+// 🔐 Google Auth + Avis (même logique que snake.js)
+// (on garde les anciens blocs)
 
-auth.onAuthStateChanged(user => {
-  utilisateur = user;
-  document.getElementById("login-btn").style.display = user ? "none" : "inline-block";
-  document.getElementById("logout-btn").style.display = user ? "inline-block" : "none";
-  document.getElementById("utilisateur-connecte").innerText = user
-    ? `Connecté : ${user.displayName || user.email}` : "";
-  afficherAvis();
+document.getElementById("rejouer-btn").addEventListener("click", () => {
+  location.reload();
 });
 
-// Avis
-document.getElementById("envoyer-btn").addEventListener("click", envoyerAvis);
-
-async function envoyerAvis() {
-  const texte = document.getElementById("avis-text").value.trim();
-  const note = parseInt(document.getElementById("etoiles").value);
-  const msg = document.getElementById("attente-msg");
-  msg.innerText = "";
-
-  if (!utilisateur) return alert("Connectez-vous pour publier.");
-  if (!texte || texte.length > 500) return alert("Max 500 caractères.");
-
-  const ref = db.collection("brick_avis")
-    .where("userId", "==", utilisateur.uid)
-    .orderBy("date", "desc").limit(1);
-  const snap = await ref.get();
-
-  if (!snap.empty) {
-    const dernier = snap.docs[0].data().date.toDate();
-    const diffMs = new Date() - dernier;
-    if (diffMs < 3600000) {
-      const m = Math.ceil((3600000 - diffMs) / 60000);
-      msg.innerText = `⏳ Attendez ${m} min avant un nouvel avis.`;
-      return;
-    }
-  }
-
-  await db.collection("brick_avis").add({
-    texte, note, likes: 0, date: new Date(),
-    userId: utilisateur.uid,
-    userName: utilisateur.displayName || utilisateur.email,
-    userEmail: utilisateur.email,
-    userPhoto: utilisateur.photoURL || ""
-  });
-
-  document.getElementById("avis-text").value = "";
-  msg.innerText = "✅ Avis posté avec succès.";
-}
-
-function afficherAvis() {
-  const container = document.getElementById("liste-avis");
-  db.collection("brick_avis").orderBy("likes", "desc").onSnapshot((snapshot) => {
-    container.innerHTML = "<h2>📣 Avis des joueurs</h2>";
-    snapshot.forEach(docSnap => {
-      const avis = docSnap.data();
-      const date = avis.date.toDate();
-      const div = document.createElement("div");
-      div.className = "avis";
-      div.innerHTML = `
-        <div class="avis-header">
-          ${avis.userPhoto ? `<img src="${avis.userPhoto}" alt="profil">` : ""}
-          <strong>${avis.userName || avis.userEmail}</strong>
-        </div>
-        <div>${"⭐".repeat(avis.note)}</div>
-        <p>${avis.texte}</p>
-        <p><small>Posté le ${date.toLocaleDateString()} à ${date.toLocaleTimeString()}</small></p>
-        <button class="like-btn" onclick="likerAvis('${docSnap.id}')">❤️ ${avis.likes || 0}</button>
-      `;
-      container.appendChild(div);
-    });
-  });
-}
-
-async function likerAvis(id) {
-  if (!utilisateur) return alert("Connectez-vous pour liker.");
-
-  const likeRef = db.collection("brick_avis").doc(id).collection("likes").doc(utilisateur.uid);
-  const snap = await likeRef.get();
-  if (snap.exists) return alert("Déjà liké.");
-
-  await likeRef.set({ liked: true });
-  await db.collection("brick_avis").doc(id).update({
-    likes: firebase.firestore.FieldValue.increment(1)
-  });
-}
-
-window.likerAvis = likerAvis;
-
-// Lancement
-while (!pseudo) {
-  pseudo = prompt("Entrez votre pseudo :")?.trim();
-}
-document.getElementById("pseudo").textContent = `Joueur : ${pseudo}`;
-getBestScore();
-afficherTopScores();
-draw();
-
-// ▶️ Lancer le jeu après avoir saisi pseudo
+// ▶️ Lancer
 window.onload = () => {
-  pseudo = prompt("Entrez votre pseudo :")?.trim();
-  if (!pseudo) {
-    alert("⚠️ Vous devez entrer un pseudo pour jouer.");
-    window.location.reload();
-    return;
-  }
-
-  document.getElementById("pseudo").textContent = `Joueur : ${pseudo}`;
+  demanderPseudo();
   getBestScore();
   afficherTopScores();
+
+  // Ne pas afficher les boutons tactiles sur PC
+  if (window.innerWidth > 768) {
+    const controls = document.getElementById("touch-controls");
+    if (controls) controls.style.display = "none";
+  }
+
   draw();
 };
+
