@@ -1,3 +1,19 @@
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCWSSYXHJNXcbFaJn6AapsEARKCTjhzqXs",
+  authDomain: "monsitecalculatrice.firebaseapp.com",
+  projectId: "monsitecalculatrice"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let pseudo = prompt("Entrez votre pseudo :")?.trim() || "Anonyme";
+document.getElementById("pseudo").textContent = pseudo;
+
+let bestScore = 0;
+let score = 0;
+let bricksColor = "#e74c3c";
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
@@ -11,14 +27,6 @@ let dx = 2;
 let dy = -2;
 
 const ballRadius = 8;
-let score = 0;
-
-const music = new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
-music.loop = true;
-music.volume = 0.2;
-music.play();
-
-const brickSound = new Audio("https://freesound.org/data/previews/26/26892_512123-lq.mp3");
 
 let rightPressed = false;
 let leftPressed = false;
@@ -30,6 +38,10 @@ const brickHeight = 20;
 const brickPadding = 10;
 const brickOffsetTop = 30;
 const brickOffsetLeft = 30;
+
+const colors = ["#e74c3c", "#f39c12", "#2ecc71", "#9b59b6", "#1abc9c"];
+
+const sound = new Audio("https://freesound.org/data/previews/26/26892_512123-lq.mp3");
 
 let bricks = [];
 function generateBricks(rows = brickRowCount) {
@@ -56,60 +68,10 @@ function keyUpHandler(e) {
   else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = false;
 }
 
-// Contrôle tactile
-let isDragging = false;
-canvas.addEventListener("touchstart", (e) => {
-  isDragging = true;
-});
-canvas.addEventListener("touchmove", (e) => {
-  if (isDragging) {
-    const touch = e.touches[0];
-    const rect = canvas.getBoundingClientRect();
-    const relativeX = touch.clientX - rect.left;
-    if (relativeX > 0 && relativeX < canvas.width) {
-      paddleX = relativeX - paddleWidth / 2;
-    }
-  }
-});
-canvas.addEventListener("touchend", () => isDragging = false);
-
-function collisionDetection() {
-  let bricksLeft = 0;
-  for (let c = 0; c < brickColumnCount; c++) {
-    for (let r = 0; r < brickRowCount; r++) {
-      const b = bricks[c][r];
-      if (b.status === 1) {
-        bricksLeft++;
-        if (
-          x > b.x && x < b.x + brickWidth &&
-          y > b.y && y < b.y + brickHeight
-        ) {
-          dy = -dy;
-          b.status = 0;
-          score++;
-          document.getElementById("score").textContent = `Score : ${score}`;
-          brickSound.currentTime = 0;
-          brickSound.play();
-        }
-      }
-    }
-  }
-
-  // Tous les bricks détruits ? Crée un niveau supplémentaire
-  if (bricksLeft === 0) {
-    brickRowCount++;
-    generateBricks(brickRowCount);
-    y = canvas.height - 30;
-    x = canvas.width / 2;
-    dx = 2;
-    dy = -2;
-  }
-}
-
 function drawBall() {
   ctx.beginPath();
   ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-  ctx.fillStyle = "#f39c12";
+  ctx.fillStyle = "#f1c40f";
   ctx.fill();
   ctx.closePath();
 }
@@ -133,11 +95,44 @@ function drawBricks() {
 
         ctx.beginPath();
         ctx.rect(brickX, brickY, brickWidth, brickHeight);
-        ctx.fillStyle = "#e74c3c";
+        ctx.fillStyle = bricksColor;
         ctx.fill();
         ctx.closePath();
       }
     }
+  }
+}
+
+function collisionDetection() {
+  let bricksLeft = 0;
+  for (let c = 0; c < brickColumnCount; c++) {
+    for (let r = 0; r < brickRowCount; r++) {
+      const b = bricks[c][r];
+      if (b.status === 1) {
+        bricksLeft++;
+        if (
+          x > b.x && x < b.x + brickWidth &&
+          y > b.y && y < b.y + brickHeight
+        ) {
+          dy = -dy;
+          b.status = 0;
+          score++;
+          document.getElementById("score").textContent = `Score : ${score}`;
+          sound.currentTime = 0;
+          sound.play();
+        }
+      }
+    }
+  }
+
+  if (bricksLeft === 0 || y < 10) {
+    bricksColor = colors[Math.floor(Math.random() * colors.length)];
+    brickRowCount++;
+    generateBricks(brickRowCount);
+    y = canvas.height - 30;
+    x = canvas.width / 2;
+    dx = 2;
+    dy = -2;
   }
 }
 
@@ -154,7 +149,7 @@ function draw() {
     if (x > paddleX && x < paddleX + paddleWidth) {
       dy = -dy;
     } else {
-      document.getElementById("game-over").style.display = "block";
+      endGame();
       return;
     }
   }
@@ -170,4 +165,62 @@ function draw() {
   requestAnimationFrame(draw);
 }
 
+async function endGame() {
+  document.getElementById("final-score").textContent = `Score : ${score}`;
+  document.getElementById("game-over").style.display = "block";
+
+  await db.collection("brick_scores").add({
+    pseudo,
+    score,
+    date: new Date()
+  });
+
+  if (score > bestScore) {
+    bestScore = score;
+    document.getElementById("best").textContent = `Best score : ${bestScore}`;
+  }
+
+  afficherTopScores();
+}
+
+async function getBestScore() {
+  const snap = await db.collection("brick_scores")
+    .where("pseudo", "==", pseudo)
+    .orderBy("score", "desc")
+    .limit(1)
+    .get();
+
+  if (!snap.empty) {
+    bestScore = snap.docs[0].data().score;
+    document.getElementById("best").textContent = `Best score : ${bestScore}`;
+  }
+}
+
+async function afficherTopScores() {
+  const list = document.getElementById("classement");
+  list.innerHTML = "";
+
+  const snap = await db.collection("brick_scores").get();
+  const meilleurs = {};
+
+  snap.forEach(doc => {
+    const d = doc.data();
+    if (!meilleurs[d.pseudo] || d.score > meilleurs[d.pseudo]) {
+      meilleurs[d.pseudo] = d.score;
+    }
+  });
+
+  Object.entries(meilleurs)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .forEach(([p, s], i) => {
+      const li = document.createElement("li");
+      li.textContent = `#${i + 1} - ${p} : ${s}`;
+      list.appendChild(li);
+    });
+}
+
+getBestScore();
+afficherTopScores();
 draw();
+
