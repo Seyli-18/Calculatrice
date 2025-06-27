@@ -119,3 +119,19 @@ canvas {
     display: flex;
   }
 }
+
+.touch-controls button {
+  font-size: 32px;
+  padding: 20px;
+  width: 80px;
+  height: 80px;
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  user-select: none;       /* 🔒 empêche copier */
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+
