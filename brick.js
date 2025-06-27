@@ -14,9 +14,9 @@ let bestScore = 0;
 let score = 0;
 let bricksColor = "#e74c3c";
 
+// 🎮 Variables du jeu
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-
 const paddleWidth = 75;
 const paddleHeight = 10;
 let paddleX = (canvas.width - paddleWidth) / 2;
@@ -25,7 +25,6 @@ let y = canvas.height - 30;
 let dx = 2;
 let dy = -2;
 const ballRadius = 8;
-
 let rightPressed = false;
 let leftPressed = false;
 
@@ -36,7 +35,6 @@ const brickHeight = 20;
 const brickPadding = 10;
 const brickOffsetTop = 30;
 const brickOffsetLeft = 30;
-
 const colors = ["#e74c3c", "#f39c12", "#2ecc71", "#9b59b6", "#1abc9c"];
 const sound = new Audio("https://cdn.pixabay.com/audio/2021/08/04/audio_36ebfa9108.mp3");
 
@@ -52,22 +50,21 @@ function generateBricks(rows = brickRowCount) {
 }
 generateBricks();
 
-// Clavier
+// 🎯 Contrôles
 document.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowRight") rightPressed = true;
-  else if (e.key === "ArrowLeft") leftPressed = true;
+  if (e.key === "Right" || e.key === "ArrowRight") rightPressed = true;
+  else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = true;
 });
 document.addEventListener("keyup", (e) => {
-  if (e.key === "ArrowRight") rightPressed = false;
-  else if (e.key === "ArrowLeft") leftPressed = false;
+  if (e.key === "Right" || e.key === "ArrowRight") rightPressed = false;
+  else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = false;
 });
 
-// Mobile Touch
-document.getElementById("left-btn").addEventListener("touchstart", () => leftPressed = true);
-document.getElementById("left-btn").addEventListener("touchend", () => leftPressed = false);
-document.getElementById("right-btn").addEventListener("touchstart", () => rightPressed = true);
-document.getElementById("right-btn").addEventListener("touchend", () => rightPressed = false);
+// Mobile controls
+window.movePaddleLeft = () => { leftPressed = true; setTimeout(() => leftPressed = false, 150); }
+window.movePaddleRight = () => { rightPressed = true; setTimeout(() => rightPressed = false, 150); }
 
+// 🖌️ Fonctions d'affichage
 function drawBall() {
   ctx.beginPath();
   ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
@@ -166,38 +163,37 @@ async function endGame() {
   if (score > bestScore) {
     bestScore = score;
     document.getElementById("best").textContent = `Best score : ${bestScore}`;
+    localStorage.setItem(`brick_best_${pseudo}`, bestScore); // ✅ save local
   }
 
   afficherTopScores();
 }
 
-document.getElementById("rejouer-btn").addEventListener("click", () => {
-  score = 0;
-  document.getElementById("score").textContent = "Score : 0";
-  document.getElementById("game-over").style.display = "none";
-  x = canvas.width / 2;
-  y = canvas.height - 30;
-  dx = 2;
-  dy = -2;
-  brickRowCount = 3;
-  generateBricks(brickRowCount);
-  draw();
-});
-
+// 🔁 Lecture best score
 async function getBestScore() {
-  const snap = await db.collection("brick_scores")
-    .where("pseudo", "==", pseudo)
-    .orderBy("score", "desc")
-    .limit(1)
-    .get();
+  const saved = localStorage.getItem(`brick_best_${pseudo}`);
+  if (saved) {
+    bestScore = parseInt(saved);
+    document.getElementById("best").textContent = `Best score : ${bestScore}`;
+  }
 
-  if (!snap.empty) {
-    bestScore = snap.docs[0].data().score;
-    document.getElementById("best").textContent = `Best score : ${bestScore}`;
-    localStorage.setItem(`brick_best_${pseudo}`, bestScore); // 🔐 sauvegarde locale
-  } else {
-    bestScore = parseInt(localStorage.getItem(`brick_best_${pseudo}`)) || 0;
-    document.getElementById("best").textContent = `Best score : ${bestScore}`;
+  try {
+    const snap = await db.collection("brick_scores")
+      .where("pseudo", "==", pseudo)
+      .orderBy("score", "desc")
+      .limit(1)
+      .get();
+
+    if (!snap.empty) {
+      const scoreDB = snap.docs[0].data().score;
+      if (scoreDB > bestScore) {
+        bestScore = scoreDB;
+        document.getElementById("best").textContent = `Best score : ${bestScore}`;
+        localStorage.setItem(`brick_best_${pseudo}`, bestScore);
+      }
+    }
+  } catch (e) {
+    console.error("Erreur best score:", e);
   }
 }
 
@@ -207,6 +203,7 @@ async function afficherTopScores() {
 
   const snap = await db.collection("brick_scores").get();
   const meilleurs = {};
+
   snap.forEach(doc => {
     const d = doc.data();
     if (!meilleurs[d.pseudo] || d.score > meilleurs[d.pseudo]) {
@@ -224,6 +221,7 @@ async function afficherTopScores() {
     });
 }
 
+// 🔐 Auth + Avis identique à la version Snake (pas recopié ici si déjà présent ailleurs)
 // 🔐 Auth Google
 document.getElementById("login-btn").addEventListener("click", async () => {
   const provider = new firebase.auth.GoogleAuthProvider();
@@ -330,3 +328,18 @@ document.getElementById("pseudo").textContent = `Joueur : ${pseudo}`;
 getBestScore();
 afficherTopScores();
 draw();
+
+// ▶️ Lancer le jeu après avoir saisi pseudo
+window.onload = () => {
+  pseudo = prompt("Entrez votre pseudo :")?.trim();
+  if (!pseudo) {
+    alert("⚠️ Vous devez entrer un pseudo pour jouer.");
+    window.location.reload();
+    return;
+  }
+
+  document.getElementById("pseudo").textContent = `Joueur : ${pseudo}`;
+  getBestScore();
+  afficherTopScores();
+  draw();
+};
