@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🧱 Casse Brique</title>
   <link rel="stylesheet" href="brick.css" />
+  
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -17,18 +18,19 @@
   <p id="score">Score : 0</p>
   <p id="best">Best score : 0</p>
 
-  <canvas id="canvas" width="480" height="320"></canvas>
+  <div style="position: relative;">
+    <canvas id="canvas" width="480" height="320"></canvas>
 
-  <!-- Contrôles tactiles mobile -->
-  <div class="touch-controls" style="margin-top: 20px;">
-  <button ontouchstart="leftPressed = true" ontouchend="leftPressed = false">⬅️</button>
-  <button ontouchstart="rightPressed = true" ontouchend="rightPressed = false">➡️</button>
-</div>
+    <div id="game-over">
+      <h2>💀 Game Over !</h2>
+      <p id="final-score">Score : 0</p>
+      <button id="rejouer-btn">🔁 Rejouer</button>
+    </div>
+  </div>
 
-  <div id="game-over">
-    <h2>💀 Game Over !</h2>
-    <p id="final-score"></p>
-    <button id="rejouer-btn">🔁 Rejouer</button>
+  <div id="touch-controls">
+    <button ontouchstart="movePaddleLeft()" ontouchend="leftPressed=false">⬅️</button>
+    <button ontouchstart="movePaddleRight()" ontouchend="rightPressed=false">➡️</button>
   </div>
 
   <div id="top-scores">
@@ -63,4 +65,3 @@
   <script src="brick.js"></script>
 </body>
 </html>
-
