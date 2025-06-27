@@ -62,15 +62,25 @@ document.addEventListener("keyup", (e) => {
   else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = false;
 });
 
-// 📱 Contrôles mobile
-window.movePaddleLeft = () => {
-  leftPressed = true;
-  setTimeout(() => (leftPressed = false), 150);
-};
-window.movePaddleRight = () => {
-  rightPressed = true;
-  setTimeout(() => (rightPressed = false), 150);
-};
+// 📱 Contrôles mobiles améliorés
+let mobileInterval = null;
+
+function startMove(direction) {
+  if (mobileInterval) return;
+  if (direction === "left") leftPressed = true;
+  if (direction === "right") rightPressed = true;
+  mobileInterval = setInterval(() => {
+    if (direction === "left") leftPressed = true;
+    if (direction === "right") rightPressed = true;
+  }, 100);
+}
+
+function stopMove() {
+  clearInterval(mobileInterval);
+  leftPressed = false;
+  rightPressed = false;
+  mobileInterval = null;
+}
 
 function drawBall() {
   ctx.beginPath();
