@@ -29,9 +29,9 @@
   </div>
 
   <div id="touch-controls">
-    <button ontouchstart="movePaddleLeft()" ontouchend="leftPressed=false">⬅️</button>
-    <button ontouchstart="movePaddleRight()" ontouchend="rightPressed=false">➡️</button>
-  </div>
+  <button onpointerdown="startMove('left')" onpointerup="stopMove()" onpointerleave="stopMove()">⬅️</button>
+  <button onpointerdown="startMove('right')" onpointerup="stopMove()" onpointerleave="stopMove()">➡️</button>
+</div>
 
   <div id="top-scores">
     <h2>🏆 Top 10</h2>
