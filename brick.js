@@ -51,15 +51,6 @@ function generateBricks(rows = brickRowCount) {
     }
   }
 }
-generateBricks();
-
-// 👇 Demander pseudo une seule fois
-function demanderPseudo() {
-  do {
-    pseudo = prompt("Entrez votre pseudo :")?.trim();
-  } while (!pseudo);
-  document.getElementById("pseudo").textContent = `Joueur : ${pseudo}`;
-}
 
 // 🎮 Contrôles clavier
 document.addEventListener("keydown", (e) => {
@@ -231,7 +222,6 @@ async function afficherTopScores() {
     });
 }
 
-// 🔐 Google Auth + Avis (même logique que snake.js)
 // Auth Google
 document.getElementById("login-btn").addEventListener("click", async () => {
   const provider = new firebase.auth.GoogleAuthProvider();
@@ -255,7 +245,7 @@ auth.onAuthStateChanged((user) => {
     : "";
 });
 
-// Envoyer un avis
+// Avis
 document.getElementById("envoyer-btn").addEventListener("click", envoyerAvis);
 
 async function envoyerAvis() {
@@ -270,71 +260,56 @@ async function envoyerAvis() {
   const texte = document.getElementById("avis-text").value.trim();
   const note = parseInt(document.getElementById("etoiles").value);
 
-  if (!texte || texte.length > 350) {
-    alert("Votre avis doit faire entre 1 et 350 caractères.");
+  if (!texte || texte.length > 500) {
+    alert("Votre avis doit faire entre 1 et 500 caractères.");
     return;
   }
 
   const now = new Date();
-
-  // Vérifie délai 1h
-  const ref = db.collection("avis")
+  const ref = db.collection("brick_avis")
     .where("userId", "==", utilisateur.uid)
     .orderBy("date", "desc")
     .limit(1);
-
   const snap = await ref.get();
   if (!snap.empty) {
     const dernier = snap.docs[0].data().date.toDate();
     const diffMs = now - dernier;
     if (diffMs < 3600000) {
-      const minutesRestantes = Math.ceil((3600000 - diffMs) / 60000);
-      msg.innerText = `⏳ Vous devez attendre ${minutesRestantes} minute(s) avant de poster un nouvel avis.`;
+      const m = Math.ceil((3600000 - diffMs) / 60000);
+      msg.innerText = `⏳ Attendez ${m} minute(s) avant de poster un nouvel avis.`;
       return;
     }
   }
 
-  const user = auth.currentUser;
-  await db.collection("avis").add({
-    texte,
-    note,
-    likes: 0,
-    date: now,
-    userId: user.uid,
-    userName: user.displayName || user.email,
-    userEmail: user.email,
-    userPhoto: user.photoURL || ""
+  await db.collection("brick_avis").add({
+    texte, note, likes: 0, date: now,
+    userId: utilisateur.uid,
+    userName: utilisateur.displayName || utilisateur.email,
+    userEmail: utilisateur.email,
+    userPhoto: utilisateur.photoURL || ""
   });
 
   document.getElementById("avis-text").value = "";
   msg.innerText = "✅ Avis posté avec succès.";
 }
 
-// Afficher les avis
 function afficherAvis() {
   const container = document.getElementById("liste-avis");
-
-  db.collection("avis").orderBy("likes", "desc").onSnapshot((snapshot) => {
-    container.innerHTML = "<h2>📣 Avis des utilisateurs</h2>";
+  db.collection("brick_avis").orderBy("likes", "desc").onSnapshot((snapshot) => {
+    container.innerHTML = "<h2>📣 Avis des joueurs</h2>";
     snapshot.forEach((docSnap) => {
       const avis = docSnap.data();
       const date = avis.date.toDate();
-      const dateStr = date.toLocaleDateString();
-      const heureStr = date.toLocaleTimeString();
-
-      const nom = avis.userName || avis.userEmail || "Utilisateur inconnu";
-      const photo = avis.userPhoto || "";
-
       const div = document.createElement("div");
       div.className = "avis";
       div.innerHTML = `
         <div class="avis-header">
-          ${photo ? `<img src="${photo}" alt="profil">` : ""}
-          <strong>${nom}</strong>
+          ${avis.userPhoto ? `<img src="${avis.userPhoto}" alt="profil">` : ""}
+          <strong>${avis.userName || avis.userEmail}</strong>
         </div>
         <div>${"⭐".repeat(avis.note)}</div>
         <p>${avis.texte}</p>
-        <p><small>Posté le ${dateStr} à ${heureStr}</small></p>
+        <p><small>Posté le ${date.toLocaleDateString()} à ${date.toLocaleTimeString()}</small></p>
         <button class="like-btn" onclick="likerAvis('${docSnap.id}')">❤️ ${avis.likes || 0}</button>
       `;
       container.appendChild(div);
@@ -342,14 +317,13 @@ function afficherAvis() {
   });
 }
 
-// Like
 async function likerAvis(id) {
   if (!utilisateur) {
     alert("Veuillez vous connecter pour liker un avis.");
     return;
   }
 
-  const likeRef = db.collection("avis").doc(id).collection("likes").doc(utilisateur.uid);
+  const likeRef = db.collection("brick_avis").doc(id).collection("likes").doc(utilisateur.uid);
   const snapshot = await likeRef.get();
 
   if (snapshot.exists) {
@@ -358,32 +332,26 @@ async function likerAvis(id) {
   }
 
   await likeRef.set({ liked: true });
-  await db.collection("avis").doc(id).update({
+  await db.collection("brick_avis").doc(id).update({
     likes: firebase.firestore.FieldValue.increment(1)
   });
 }
 
-// Rendre global
-window.ajouterChiffre = ajouterChiffre;
-window.ajouterOperateur = ajouterOperateur;
-window.calculer = calculer;
-window.effacer = effacer;
-window.afficherAvis = afficherAvis;
 window.likerAvis = likerAvis;
 
-window.onload = afficherAvis;
-
-document.getElementById("rejouer-btn").addEventListener("click", () => {
-  location.reload();
-});
-
-// ▶️ Lancer
+// ▶️ Démarrage
 window.onload = () => {
-  demanderPseudo();
+  do {
+    pseudo = prompt("Entrez votre pseudo :")?.trim();
+  } while (!pseudo);
+
+  document.getElementById("pseudo").textContent = `Joueur : ${pseudo}`;
+  generateBricks();
   getBestScore();
   afficherTopScores();
+  afficherAvis();
 
-  // Ne pas afficher les boutons tactiles sur PC
+  // Masquer les boutons tactiles sur PC
   if (window.innerWidth > 768) {
     const controls = document.getElementById("touch-controls");
     if (controls) controls.style.display = "none";
@@ -392,3 +360,7 @@ window.onload = () => {
   draw();
 };
 
+// 🔁 Rejouer
+document.getElementById("rejouer-btn")?.addEventListener("click", () => {
+  location.reload();
+});
