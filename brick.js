@@ -14,9 +14,9 @@ let bestScore = 0;
 let score = 0;
 let bricksColor = "#e74c3c";
 
-// 🎮 Variables du jeu
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+
 const paddleWidth = 75;
 const paddleHeight = 10;
 let paddleX = (canvas.width - paddleWidth) / 2;
@@ -25,6 +25,7 @@ let y = canvas.height - 30;
 let dx = 2;
 let dy = -2;
 const ballRadius = 8;
+
 let rightPressed = false;
 let leftPressed = false;
 
@@ -35,6 +36,7 @@ const brickHeight = 20;
 const brickPadding = 10;
 const brickOffsetTop = 30;
 const brickOffsetLeft = 30;
+
 const colors = ["#e74c3c", "#f39c12", "#2ecc71", "#9b59b6", "#1abc9c"];
 const sound = new Audio("https://cdn.pixabay.com/audio/2021/08/04/audio_36ebfa9108.mp3");
 
@@ -50,14 +52,21 @@ function generateBricks(rows = brickRowCount) {
 }
 generateBricks();
 
+// Clavier
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Right" || e.key === "ArrowRight") rightPressed = true;
-  else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = true;
+  if (e.key === "ArrowRight") rightPressed = true;
+  else if (e.key === "ArrowLeft") leftPressed = true;
 });
 document.addEventListener("keyup", (e) => {
-  if (e.key === "Right" || e.key === "ArrowRight") rightPressed = false;
-  else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = false;
+  if (e.key === "ArrowRight") rightPressed = false;
+  else if (e.key === "ArrowLeft") leftPressed = false;
 });
+
+// Mobile Touch
+document.getElementById("left-btn").addEventListener("touchstart", () => leftPressed = true);
+document.getElementById("left-btn").addEventListener("touchend", () => leftPressed = false);
+document.getElementById("right-btn").addEventListener("touchstart", () => rightPressed = true);
+document.getElementById("right-btn").addEventListener("touchend", () => rightPressed = false);
 
 function drawBall() {
   ctx.beginPath();
@@ -162,6 +171,19 @@ async function endGame() {
   afficherTopScores();
 }
 
+document.getElementById("rejouer-btn").addEventListener("click", () => {
+  score = 0;
+  document.getElementById("score").textContent = "Score : 0";
+  document.getElementById("game-over").style.display = "none";
+  x = canvas.width / 2;
+  y = canvas.height - 30;
+  dx = 2;
+  dy = -2;
+  brickRowCount = 3;
+  generateBricks(brickRowCount);
+  draw();
+});
+
 async function getBestScore() {
   const snap = await db.collection("brick_scores")
     .where("pseudo", "==", pseudo)
@@ -181,7 +203,6 @@ async function afficherTopScores() {
 
   const snap = await db.collection("brick_scores").get();
   const meilleurs = {};
-
   snap.forEach(doc => {
     const d = doc.data();
     if (!meilleurs[d.pseudo] || d.score > meilleurs[d.pseudo]) {
@@ -204,54 +225,44 @@ document.getElementById("login-btn").addEventListener("click", async () => {
   const provider = new firebase.auth.GoogleAuthProvider();
   try {
     await auth.signInWithPopup(provider);
-  } catch (error) {
-    alert("Erreur de connexion : " + error.message);
+  } catch (e) {
+    alert("Erreur : " + e.message);
   }
 });
+document.getElementById("logout-btn").addEventListener("click", () => auth.signOut());
 
-document.getElementById("logout-btn").addEventListener("click", () => {
-  auth.signOut();
-});
-
-auth.onAuthStateChanged((user) => {
+auth.onAuthStateChanged(user => {
   utilisateur = user;
   document.getElementById("login-btn").style.display = user ? "none" : "inline-block";
   document.getElementById("logout-btn").style.display = user ? "inline-block" : "none";
   document.getElementById("utilisateur-connecte").innerText = user
-    ? `Connecté en tant que : ${user.displayName || user.email}`
-    : "";
+    ? `Connecté : ${user.displayName || user.email}` : "";
   afficherAvis();
 });
 
+// Avis
 document.getElementById("envoyer-btn").addEventListener("click", envoyerAvis);
 
 async function envoyerAvis() {
+  const texte = document.getElementById("avis-text").value.trim();
+  const note = parseInt(document.getElementById("etoiles").value);
   const msg = document.getElementById("attente-msg");
   msg.innerText = "";
 
-  if (!utilisateur) {
-    alert("Veuillez vous connecter pour publier un avis.");
-    return;
-  }
-
-  const texte = document.getElementById("avis-text").value.trim();
-  const note = parseInt(document.getElementById("etoiles").value);
-  if (!texte || texte.length > 500) {
-    alert("Votre avis doit faire entre 1 et 500 caractères.");
-    return;
-  }
+  if (!utilisateur) return alert("Connectez-vous pour publier.");
+  if (!texte || texte.length > 500) return alert("Max 500 caractères.");
 
   const ref = db.collection("brick_avis")
     .where("userId", "==", utilisateur.uid)
-    .orderBy("date", "desc")
-    .limit(1);
+    .orderBy("date", "desc").limit(1);
   const snap = await ref.get();
+
   if (!snap.empty) {
     const dernier = snap.docs[0].data().date.toDate();
     const diffMs = new Date() - dernier;
     if (diffMs < 3600000) {
       const m = Math.ceil((3600000 - diffMs) / 60000);
-      msg.innerText = `⏳ Attendez ${m} minute(s) avant de poster un nouvel avis.`;
+      msg.innerText = `⏳ Attendez ${m} min avant un nouvel avis.`;
       return;
     }
   }
@@ -272,7 +283,7 @@ function afficherAvis() {
   const container = document.getElementById("liste-avis");
   db.collection("brick_avis").orderBy("likes", "desc").onSnapshot((snapshot) => {
     container.innerHTML = "<h2>📣 Avis des joueurs</h2>";
-    snapshot.forEach((docSnap) => {
+    snapshot.forEach(docSnap => {
       const avis = docSnap.data();
       const date = avis.date.toDate();
       const div = document.createElement("div");
@@ -293,18 +304,11 @@ function afficherAvis() {
 }
 
 async function likerAvis(id) {
-  if (!utilisateur) {
-    alert("Veuillez vous connecter pour liker un avis.");
-    return;
-  }
+  if (!utilisateur) return alert("Connectez-vous pour liker.");
 
   const likeRef = db.collection("brick_avis").doc(id).collection("likes").doc(utilisateur.uid);
-  const snapshot = await likeRef.get();
-
-  if (snapshot.exists) {
-    alert("Vous avez déjà liké cet avis.");
-    return;
-  }
+  const snap = await likeRef.get();
+  if (snap.exists) return alert("Déjà liké.");
 
   await likeRef.set({ liked: true });
   await db.collection("brick_avis").doc(id).update({
@@ -314,9 +318,12 @@ async function likerAvis(id) {
 
 window.likerAvis = likerAvis;
 
-// 🔁 Lancement
-pseudo = prompt("Entrez votre pseudo :")?.trim() || "Anonyme";
+// Lancement
+while (!pseudo) {
+  pseudo = prompt("Entrez votre pseudo :")?.trim();
+}
 document.getElementById("pseudo").textContent = `Joueur : ${pseudo}`;
 getBestScore();
 afficherTopScores();
 draw();
+
