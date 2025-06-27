@@ -5,15 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🧱 Casse Brique</title>
   <link rel="stylesheet" href="brick.css" />
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
   <h1>🧱 Casse Brique</h1>
+  <p id="player">👤 Joueur : <span id="pseudo"></span></p>
   <p id="score">Score : 0</p>
+  <p id="best">Best score : 0</p>
+
   <canvas id="canvas" width="480" height="320"></canvas>
 
   <div id="game-over">
     <h2>💀 Game Over !</h2>
+    <p id="final-score"></p>
     <button onclick="location.reload()">🔁 Rejouer</button>
+  </div>
+
+  <div id="top-scores">
+    <h2>🏆 Top 10</h2>
+    <ol id="classement"></ol>
   </div>
 
   <script src="brick.js"></script>
