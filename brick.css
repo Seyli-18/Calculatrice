@@ -135,3 +135,39 @@ canvas {
   touch-action: manipulation;
 }
 
+#touch-controls {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+#touch-controls button {
+  font-size: 30px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+}
+
+@media (min-width: 769px) {
+  #touch-controls {
+    display: none !important;
+  }
+}
+
+#game-over {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.85);
+  color: white;
+  padding: 20px 30px;
+  border-radius: 12px;
+  text-align: center;
+  z-index: 10;
+}
+
