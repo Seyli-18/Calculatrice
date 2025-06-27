@@ -364,3 +364,18 @@ window.onload = () => {
 document.getElementById("rejouer-btn")?.addEventListener("click", () => {
   location.reload();
 });
+
+function resetGame() {
+  score = 0;
+  brickRowCount = 3;
+  generateBricks();
+  x = canvas.width / 2;
+  y = canvas.height - 30;
+  dx = 1.8;
+  dy = -1.8;
+  paddleX = (canvas.width - paddleWidth) / 2;
+  document.getElementById("score").textContent = "Score : 0";
+  document.getElementById("game-over").style.display = "none";
+  draw();
+}
+
