@@ -4,11 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🧱 Casse Brique</title>
-  <link rel="stylesheet" href="brick.css">
+  <link rel="stylesheet" href="brick.css" />
 </head>
 <body>
   <h1>🧱 Casse Brique</h1>
+  <p id="score">Score : 0</p>
   <canvas id="canvas" width="480" height="320"></canvas>
+
+  <div id="game-over">
+    <h2>💀 Game Over !</h2>
+    <button onclick="location.reload()">🔁 Rejouer</button>
+  </div>
 
   <script src="brick.js"></script>
 </body>
