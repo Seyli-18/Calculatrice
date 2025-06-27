@@ -25,6 +25,11 @@
     <button id="right-btn">➡️</button>
   </div>
 
+  <div class="touch-controls" style="margin-top: 20px;">
+  <button ontouchstart="leftPressed = true" ontouchend="leftPressed = false">⬅️</button>
+  <button ontouchstart="rightPressed = true" ontouchend="rightPressed = false">➡️</button>
+</div>
+
   <div id="game-over">
     <h2>💀 Game Over !</h2>
     <p id="final-score"></p>
