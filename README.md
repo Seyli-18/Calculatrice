@@ -48,5 +48,33 @@ Ce projet regroupe plusieurs jeux et outils interactifs accessibles directement 
 
 ---
 
+
+
+---
+
+## 📣 Contact
+
+Tu peux me contacter en laissant un avis directement sur le site ! 😄
+
+---
+
+
+
 ## 📦 Structure du projet
 
+README.md
+.nojekyll
+robots.txt
+sitemap.xml
+index.html
+script.js
+style.css
+brick.css
+brick.html
+brick.js
+jeux.html
+jeux.js
+jeux.css
+snake.html
+snake.js
+snake.css
