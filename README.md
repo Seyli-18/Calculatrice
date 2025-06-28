@@ -22,6 +22,8 @@ Ce projet regroupe plusieurs jeux et outils interactifs accessibles directement 
 - **🐍 Snake** : jeu classique où tu contrôles un serpent qui grandit en mangeant.
 - **🧱 Casse-brique** : détruis toutes les briques avec ta balle sans la laisser tomber.
 
+### Système de Top #10 des Scores
+
 ### 🗣️ Système d’avis
 - Possibilité de laisser un avis après connexion avec un compte Google (Gmail).
 - Affichage des avis des autres utilisateurs.
@@ -41,7 +43,7 @@ Ce projet regroupe plusieurs jeux et outils interactifs accessibles directement 
 
 - HTML, CSS, JavaScript
 - GitHub Pages
-- [Google Firebase](https://firebase.google.com/) (si tu utilises Firebase pour la connexion Gmail)
+- [Google Firebase](https://firebase.google.com/) 
 - Git pour le versionnage du code
 
 ---
